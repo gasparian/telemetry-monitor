@@ -1,4 +1,6 @@
-## Orbins web interface  
+## Telemtry monitor  
+
+If using KITTI raw dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
  - read file with fetch;  
