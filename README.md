@@ -1,4 +1,4 @@
-## Telemtry monitor [IN PROGRESS]  
+## Telemetry monitor [IN PROGRESS]  
 
 If you're using KITTI raw dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
