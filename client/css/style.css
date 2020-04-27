@@ -3,7 +3,7 @@ html, body {
     margin: 0;
 }
 
-#mapView {
+#map-view {
     position: absolute;
     width: 54%;
     left: 0px;
@@ -11,7 +11,8 @@ html, body {
     top: 0px;
 }
 
-.chartsBlock {
+.charts-block {
+    position: relative;
     width: 45%;
     float: right;
     overflow: hidden;
@@ -22,11 +23,11 @@ html, body {
     height: 100%;
     background-color: #333333;
 }
-    #uploadForm {
+    #upload-form {
         padding-top: 10px;
         padding-left: 10px;
     }   
-        #inpFileButton {
+        #inp-file-button {
             padding: 10px;
             height: 5%;
             width: 17%;
@@ -37,17 +38,55 @@ html, body {
             cursor: pointer;
         }
 
-        #inpFileButton hover {
+        #inp-file-button hover {
             background-color: #00b28f;
         }
 
-        #inpFileText {
+        #inp-file-text {
             margin-left: 10px;
             font-family: sans-sherif;
             color: #FFFFFF;
         }
 
-    .chart {
+    .reset-button {
+        position: relative;
+        background-color: #aaaaaa;
+        border: 1px solid #000;
+        border-radius: 10%;
+        cursor: pointer;
+        width: 70px;
+        height: 30px;
+        top: 10px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .reset-button:hover {
+        background-color: #bbbbbb;
+    }
+
+    .charts {
         margin-left: 5px;
-        margin-top: 5px;
+        margin-top: 20px;
+        height: 800px;
+        overflow: auto;
+    }
+
+    ::-webkit-scrollbar {
+        width: 20px;
+    }
+
+      /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+   
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888; 
+    }
+    
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
     }

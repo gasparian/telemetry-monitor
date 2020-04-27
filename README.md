@@ -3,11 +3,10 @@
 If using KITTI raw dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
- - read file with fetch;  
- - drop cols array --> parse csv columns instead;  
- - scrollable right field;  
+ - find a bug in the KITTI raw prep. scripts (smth wrong with order...);  
+ - pack into Docker --> build on DockerHub;  
+ - add waiting animation while loading the file;  
  - add tabs in a right field: chart and control panel;  
- - add waiting animation;  
  - add COM-port settings form, near the upload section;  
 
 ### Libs  
@@ -55,4 +54,3 @@ nodemon app.js
   - velmode: velocity mode of primary GPS receiver
   - orimode: orientation mode of primary GPS receiver
 ```  
-

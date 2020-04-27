@@ -1,26 +1,13 @@
-// col names
-let cols = [    
-    "timestamp","lat","lon",
-    "alt","roll","pitch","yaw",
-    "vn","ve","vf","vl","vu","ax",
-    "ay","az","af","al","au","wx",
-    "wy","wz","wf","wl","wu",
-    "pos_accuracy","vel_accuracy",
-    "navstat","numsats",
-    "posmode","velmode","orimode"
-]
-
-// csv parser
-function processData(file, altchart, prchart, yawchart, thin=1) {
-    thin = Math.max(1, thin);
+function processData(file, altchart, prchart, yawchart) {
     let reader = new FileReader();
     reader.onloadend = function(e) {
         if (e.target.readyState == FileReader.DONE) {
             let measurements = reader.result.split("\n");
-            let parsedCsv = parseCsv(measurements, thin);
+            let parsedCsv = parseCsv(measurements);
             altchart.drawAlt(parsedCsv);
             prchart.drawPr(parsedCsv);
             yawchart.drawYaw(parsedCsv);
+            drawMapPolyline(parsedCsv.longLatArr, thin=1);
         }
     };
     reader.readAsBinaryString(file);
@@ -30,7 +17,13 @@ function roundToPrecision(x, precision) {
     return Math.round((x + Number.EPSILON) * precision) / precision;
 }
 
-function parseCsv(measurements, thin=100) {
+function parseCsv(measurements) {
+    let thin = 1;
+    if (measurements.length >= 5000) {
+        thin = 20;
+    }
+    // long/latt
+    let longLatArr = [];
     // pitch/roll/yaw arrays
     let pArr = [];
     let rArr = [];
@@ -43,13 +36,21 @@ function parseCsv(measurements, thin=100) {
     let flag = false;
     let i = 0;
     let t0, dt;
+    let cols = [];
     measurements.forEach(measurement => {
         if (count % thin) {
             count++;
             return;
         } 
         measurement = measurement.split(',');
-        if ( !((measurement[0] == "timestamp") || measurement.length == 1) ) {
+        if (measurement[0] == "timestamp") {
+            measurement.forEach(col => {
+                cols.push(col);
+            });
+            count++;
+            return;
+        }
+        if ( !(measurement.length == 1) ) {
             measurement_row = {};
             i = 0;
             cols.forEach(col => {
@@ -66,14 +67,58 @@ function parseCsv(measurements, thin=100) {
             rArr.push(parseFloat(measurement_row["roll"]));
             yArr.push(parseFloat(measurement_row["yaw"]));
             altArr.push(parseFloat(measurement_row["alt"]));
+            longLatArr.push([parseFloat(measurement_row["lon"]), 
+                             parseFloat(measurement_row["lat"])]);
         };
         count++;
     });
-    return { ts, pArr, rArr, yArr, altArr };
+    return { ts, pArr, rArr, yArr, altArr, longLatArr };
 };
 
+function getMeanCoords(arr) {
+    let lon = 0;
+    let lat = 0;
+    let len = arr.length;
+    arr.forEach( a => {
+        lon += a[0] / len;
+        lat += a[1] / len;
+    });
+    return { lon, lat };
+}
+
+function drawMapPolyline(arr, thin=10) {
+    let centerCoords = getMeanCoords(arr);
+
+    let newArr = arr.filter(function(value, index, Arr) {
+        return index % thin == 0;
+    });
+
+    let lineSymbol = {
+        type: "simple-line",
+        color: [226, 119, 40], // orange
+        width: 2
+    };
+
+    let polyline = {
+        type: "polyline",
+        paths: newArr
+    };
+
+    let polylineGraphic = new Graphic({
+        geometry: polyline,
+        symbol: lineSymbol
+    });
+    
+    graphicsLayer.add(polylineGraphic);
+
+    sceneView.center = [centerCoords.lon,  centerCoords.lat];
+    sceneView.zoom = 16;
+
+    console.log(arr);
+}
+
 class myChart {
-    constructor(ylabel="Y", chartName='alt_chart', title="Altitude") {
+    constructor(ylabel="Y", chartName='alt-chart', title="Altitude") {
         let ctx = document.getElementById(chartName).getContext('2d');
         this.chart = new Chart(ctx, {
             type: 'line',
@@ -150,7 +195,38 @@ class myChart {
                     point: {
                         radius: 0
                     }
-                }
+                },
+                plugins: {
+					zoom: {
+                        pan: {
+                            // Boolean to enable panning
+                            enabled: true,
+                            mode: 'xy',
+                            rangeMin: {
+                                // Format of min pan range depends on scale type
+                                x: null,
+                                y: null
+                            },
+                            rangeMax: {
+                                // Format of max pan range depends on scale type
+                                x: null,
+                                y: null
+                            },
+                            // On category scale, factor of pan velocity
+                            speed: 5,
+                            // Minimal pan distance required before actually applying pan
+                            threshold: 10
+                        },
+						zoom: {
+							enabled: true,
+                            // drag: {animationDuration: 500},
+                            drag: false,
+							mode: 'xy',
+                            speed: 0.025,
+                            sensitivity: 2
+						}
+					}
+				}
             }
         });
     };
