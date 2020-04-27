@@ -4,13 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>orbins gui</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
     <link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/dark/main.css">
     <link rel="stylesheet" href="./css/style.css" type="text/css">
     <script src="https://js.arcgis.com/4.15/"></script>
-    <title>orbins gui</title>
 </head>
 <body>
     <div id="mapView"></div>
+
+    <div class="chartsBlock">
+        <form id="uploadForm"> 
+            <input type="file" id="inpFile" hidden="hidden">
+            <button type="button" id="inpFileButton">Choose a file</button>
+            <span id="inpFileText">No file chosen, yet</span>
+        </form>
+        <canvas class="chart" id="alt_chart" height="150px"></canvas>
+        <canvas class="chart" id="pr_chart" height="150px"></canvas>
+        <canvas class="chart" id="yaw_chart" height="150px"></canvas>
+    </div>
+
+    <script src="./js/helpers.js"></script>
     <script src="./js/index.js"></script>
 </body>
 </html>

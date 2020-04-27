@@ -1,4 +1,53 @@
-#mapView {
-    width: 1200px;
-    height: 900px;
+html, body {
+    height: 100%;
+    margin: 0;
 }
+
+#mapView {
+    position: absolute;
+    width: 54%;
+    left: 0px;
+    bottom: 0px;
+    top: 0px;
+}
+
+.chartsBlock {
+    width: 45%;
+    float: right;
+    overflow: hidden;
+    top: 0px;
+    left: 0px;
+    padding-right: 10px;
+    padding-left: 10px;
+    height: 100%;
+    background-color: #333333;
+}
+    #uploadForm {
+        padding-top: 10px;
+        padding-left: 10px;
+    }   
+        #inpFileButton {
+            padding: 10px;
+            height: 5%;
+            width: 17%;
+            color: black;
+            background-color: #009578;
+            border: 1px solid #000;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #inpFileButton hover {
+            background-color: #00b28f;
+        }
+
+        #inpFileText {
+            margin-left: 10px;
+            font-family: sans-sherif;
+            color: #FFFFFF;
+        }
+
+    .chart {
+        margin-left: 5px;
+        margin-top: 5px;
+    }
