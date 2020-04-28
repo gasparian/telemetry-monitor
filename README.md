@@ -2,7 +2,7 @@
 
 <p align="center"> <img src="https://github.com/gasparian/telemetry_monitor/blob/master/client/img/Screenshot from 2020-04-28 20-56-47.png" height=500 /> </p>  
 
-If you're using KITTI raw dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
+If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
  - charts.js --> D3.js;  
