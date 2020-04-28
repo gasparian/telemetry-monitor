@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------*/
 // position accuracy multiplier
-let globPosMult = 4;
-let globThin = 2;
+let globPosMult = 2;
+let globThin = 10;
 
 const fileInput = document.getElementById("inp-file");
 const fileInputBtn = document.getElementById("inp-file-button");
@@ -23,6 +23,9 @@ resetZoom.onclick = function(e) {
     altChart.chart.resetZoom();
     prChart.chart.resetZoom();
     yawChart.chart.resetZoom();
+    posChart.chart.resetZoom();
+    velChart.chart.resetZoom();
+    numsatChart.chart.resetZoom();
 };
 
 /*---------------------------------------------------------------------------------------------------*/
