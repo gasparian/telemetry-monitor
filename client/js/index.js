@@ -74,7 +74,7 @@ fileInput.onchange = function(e) {
         sw.start();
 
         setTimeout(() => switchCoverSpin(false), 
-                   sw.duration <= 1.0 ? 1000 : sw.duration * 1000);
+                   sw.duration <= 1.0 ? 1000 : 10);
         sw.reset();
     } 
 };

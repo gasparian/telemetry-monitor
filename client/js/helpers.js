@@ -9,8 +9,8 @@ function processData(file, altchart, prchart, yawchart, poschart, velchart, nums
             poschart.drawSingle(parsedCsv.ts, parsedCsv.posAccArr);
             velchart.drawSingle(parsedCsv.ts, parsedCsv.velAccArr);
             numsatchart.drawSingle(parsedCsv.ts, parsedCsv.numsatArr);
-
             prchart.drawPr(parsedCsv);
+            graphicsLayer.removeAll();
             drawMapPolyline(parsedCsv, thin=globThin);
         }
     };
@@ -86,7 +86,7 @@ function parseCsv(measurements) {
 };
 
 function drawMapPolyline(arr, thin=10) {
-
+    drawCone(arr.longLatArr[0][0], arr.longLatArr[0][1], false);
     let clon = 0;
     let clat = 0;
     let i = 0;
@@ -104,8 +104,8 @@ function drawMapPolyline(arr, thin=10) {
         };
         i++;
     });
-
-    console.log(len, clon, clat);
+    i--;
+    drawCone(arr.longLatArr[i][0], arr.longLatArr[i][1], true);
 
     let polyline = {
         type: "polyline",
@@ -126,7 +126,38 @@ function drawMapPolyline(arr, thin=10) {
     // draw polyline
     graphicsLayer.add(polylineGraphic);
     sceneView.center = [clon, clat];
-    sceneView.zoom = 16;
+    sceneView.zoom = 17;
+}
+
+function drawCone(lon, lat, finish=false) {
+    let point = {
+        type: "point",
+        longitude: lon,
+        latitude: lat
+    };
+
+    let pointSymbol = {
+        type: "point-3d", 
+        symbolLayers: [{
+          type: "object", 
+          width: 10,   // diameter of the object from east to west in meters
+          height: 20,  // height of object in meters
+          depth: 10,   // diameter of the object from north to south in meters
+          resource: {
+              primitive: "inverted-cone"
+          },
+          material: { 
+              color: finish ? [226, 40, 40, 1.0] : [226, 119, 40, 1.0]
+          }
+        }]
+    };
+
+    let pointGraphic = new Graphic({
+        geometry: point,
+        symbol: pointSymbol
+    });
+
+    graphicsLayer.add(pointGraphic);
 }
 
 function drawPosAcc(lon, lat, acc, mult=2) {
@@ -173,7 +204,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
                 fill: false,
                 data: [],
                 borderColor: 'rgba(99, 159, 255, 1)',
-                borderWidth: 1
+                borderWidth: 2
             }]
         },
         options: {
@@ -196,7 +227,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
                         padding: 5,
                     },
                     gridLines: {
-                        color: 'rgba(200, 200, 200, 1)',
+                        color: 'rgba(200, 200, 200, 0.6)',
                         zeroLineColor: 'rgba(200, 200, 200, 1)',
                         tickMarkLength: 0,
                         drawBorder: true,
@@ -214,7 +245,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
                         padding: 5,
                     },
                     gridLines: {
-                        color: 'rgba(200, 200, 200, 1)',
+                        color: 'rgba(200, 200, 200, 0.6)',
                         zeroLineColor: 'rgba(200, 200, 200, 1)',
                         tickMarkLength: 0,
                         drawBorder: true
@@ -257,17 +288,17 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
                             y: null
                         },
                         // On category scale, factor of pan velocity
-                        speed: 5,
+                        speed: 1000,
                         // Minimal pan distance required before actually applying pan
-                        threshold: 10
+                        threshold: 5
                     },
                     zoom: {
                         enabled: true,
                         // drag: {animationDuration: 500},
                         drag: false,
-                        mode: 'xy',
-                        speed: 0.025,
-                        sensitivity: 2
+                        mode: 'x',
+                        speed: 1000,
+                        sensitivity: 0.00001
                     }
                 }
             }

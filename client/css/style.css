@@ -54,8 +54,8 @@ html, body {
         border: 1px solid #000;
         border-radius: 10px;
         cursor: pointer;
-        width: 70px;
-        height: 30px;
+        width: 90px;
+        height: 40px;
         top: 10px;
         margin-left: 10px;
         margin-right: 10px;
@@ -68,7 +68,7 @@ html, body {
     .charts {
         margin-left: 5px;
         margin-top: 20px;
-        height: 800px;
+        height: 840px;
         overflow: auto;
     }
 
