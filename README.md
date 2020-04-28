@@ -1,5 +1,7 @@
 ## Telemetry monitor [IN PROGRESS]  
 
+<p align="center"> <img src="https://github.com/gasparian/telemetry_monitor/blob/master/client/img/Screenshot from 2020-04-28 20-01-05.png" height=320 /> </p>  
+
 If you're using KITTI raw dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
