@@ -5,7 +5,6 @@
 If you're using KITTI raw dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
- - find a bug in the KITTI raw prep. scripts (smth wrong with order...);  
  - charts.js --> D3.js;  
  - pack into Docker --> build on DockerHub;  
  - add tabs in a right field: chart and control panel;  
