@@ -4,12 +4,15 @@ If you're using KITTI raw dataset, first [accumulate](https://gist.github.com/ga
 
 ### To do:  
  - find a bug in the KITTI raw prep. scripts (smth wrong with order...);  
+ - charts.js --> D3.js;  
  - pack into Docker --> build on DockerHub;  
- - add waiting animation while loading the file;  
  - add tabs in a right field: chart and control panel;  
  - add COM-port settings form, near the upload section;  
 
 ### Libs  
+ - ArcGIS;  
+ - charts.js;
+ - hammerjs;  
  - node;  
  - nodemon: `npm i -g nodemon`;  
  - express: `npm init --yes` --> `npm i express`;  

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>orbins gui</title>
+    <title>telemetry monitor</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
@@ -27,8 +27,13 @@
             <canvas id="alt-chart" height="150px"></canvas>
             <canvas id="pr-chart" height="150px"></canvas>
             <canvas id="yaw-chart" height="150px"></canvas>
+            <canvas id="pos-chart" height="150px"></canvas>
+            <canvas id="vel-chart" height="150px"></canvas>
+            <canvas id="numsat-chart" height="150px"></canvas>
         </div>
     </div>
+
+    <div id="cover-spin"></div>
 
     <script src="./js/helpers.js"></script>
     <script src="./js/index.js"></script>

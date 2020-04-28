@@ -34,7 +34,7 @@ html, body {
             color: black;
             background-color: #009578;
             border: 1px solid #000;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
         }
 
@@ -52,7 +52,7 @@ html, body {
         position: relative;
         background-color: #aaaaaa;
         border: 1px solid #000;
-        border-radius: 10%;
+        border-radius: 10px;
         cursor: pointer;
         width: 70px;
         height: 30px;
@@ -90,3 +90,40 @@ html, body {
     ::-webkit-scrollbar-thumb:hover {
         background: #555; 
     }
+
+#cover-spin {
+    position: fixed;
+    width: 100%;
+    left: 0; 
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.7);
+    z-index:9999;
+    display: none; /* switch this */
+}
+
+@-webkit-keyframes spin {
+    from {-webkit-transform:rotate(0deg);}
+    to {-webkit-transform:rotate(360deg);}
+}
+
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
+
+#cover-spin::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left:48%;top: 40%;
+    width:40px;height: 40px;
+    border-style: solid;
+    border-color: black;
+    border-top-color: transparent;
+    border-width: 4px;
+    border-radius: 50%;
+    -webkit-animation: spin .8s linear infinite;
+    animation: spin .8s linear infinite;
+}

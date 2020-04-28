@@ -1,4 +1,7 @@
 /*---------------------------------------------------------------------------------------------------*/
+// position accuracy multiplier
+let globPosMult = 4;
+let globThin = 2;
 
 const fileInput = document.getElementById("inp-file");
 const fileInputBtn = document.getElementById("inp-file-button");
@@ -11,6 +14,9 @@ fileInputBtn.onclick = function(e) {
 let altChart = new myChart(ylabel="Alt, m", chartName='alt-chart', title="Altitude");
 let prChart = new myChart(ylabel="Angle, rad.", chartName='pr-chart', title="Pitch/Roll");
 let yawChart = new myChart(ylabel="Angle, rad.", chartName='yaw-chart', title="Yaw");
+let posChart = new myChart(ylabel="Pos., m", chartName='pos-chart', title="pos_accuracy");
+let velChart = new myChart(ylabel="V, m/s", chartName='vel-chart', title="vel_accuracy");
+let numsatChart = new myChart(ylabel="#", chartName='numsat-chart', title="num_satelites");
 
 const resetZoom = document.getElementById("zoom-reset");
 resetZoom.onclick = function(e) {
@@ -29,11 +35,12 @@ let sceneView;
 let Graphic;
 let graphicsLayer;
 let Point;
+let multiPoint;
 
 // initialize ArcGIS map
 require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic", 
-         "esri/layers/GraphicsLayer", "esri/geometry/Point"], 
-        function(Map, MapView, SceneView, GraphicClass, GraphicsLayer, PointClass) {
+         "esri/layers/GraphicsLayer", "esri/geometry/Point", "esri/geometry/Multipoint"], 
+        function(Map, MapView, SceneView, GraphicClass, GraphicsLayer, PointClass, MultipointClass) {
     currentMap = new Map({basemap: "streets-night-vector"});
     sceneView = new SceneView({
         container: "map-view",
@@ -43,9 +50,10 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
     });
     graphicsLayer = new GraphicsLayer();
     currentMap.add(graphicsLayer);
-    
+
     Graphic = GraphicClass;
     Point = PointClass;
+    multiPoint = MultipointClass;
 });
 
 /*-------------------------------------------- ArcGIS -----------------------------------------------*/
@@ -53,11 +61,21 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 /*-------------------------------------------- Graphs -----------------------------------------------*/
 
 // read file callback
+const sw = new Stopwatch();
 fileInput.onchange = function(e) {
     if (fileInput.value) {
         fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
+
+        switchCoverSpin(true);
+        sw.start();
         processData(fileInput.files[0], 
-                    altChart, prChart, yawChart);
+                    altChart, prChart, yawChart,
+                    posChart, velChart, numsatChart);
+        sw.start();
+
+        setTimeout(() => switchCoverSpin(false), 
+                   sw.duration <= 1.0 ? 1000 : sw.duration * 1000);
+        sw.reset();
     } 
 };
 
