@@ -5,6 +5,7 @@
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
+ - work with zooming/panning!;  
  - charts.js --> D3.js;  
  - pack into Docker --> build on DockerHub;  
  - add tabs in a right field: chart and control panel;  
