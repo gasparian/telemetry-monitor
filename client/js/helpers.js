@@ -86,7 +86,6 @@ function parseCsv(measurements) {
 };
 
 function drawMapPolyline(arr, thin=10) {
-    drawCone(arr.longLatArr[0][0], arr.longLatArr[0][1], false);
     let clon = 0;
     let clat = 0;
     let i = 0;
@@ -104,8 +103,8 @@ function drawMapPolyline(arr, thin=10) {
         };
         i++;
     });
-    i--;
-    drawCone(arr.longLatArr[i][0], arr.longLatArr[i][1], true);
+    drawCone(newArr[0][0], newArr[0][1], false);
+    drawCone(newArr[newArr.length - 1][0], newArr[newArr.length - 1][1], true);
 
     let polyline = {
         type: "polyline",
