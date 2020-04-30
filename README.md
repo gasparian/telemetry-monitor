@@ -15,9 +15,13 @@ If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) d
  - ArcGIS;  
  - charts.js;
  - hammerjs;  
+
+ Install:  
  - node;  
- - nodemon: `npm i -g nodemon`;  
  - express: `npm init --yes` --> `npm i express`;  
+
+ For local tests:  
+ - nodemon: `npm i -g nodemon`;  
 
 ### Running  
 

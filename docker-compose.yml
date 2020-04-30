@@ -1,0 +1,11 @@
+version: '3.0'
+
+services:
+  telemetry_monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gasparjan/telemetry_monitor:latest
+    restart: unless-stopped 
+    ports:
+      - "3000:3000"
