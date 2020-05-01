@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>telemetry monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/dark/main.css">
+    <link rel="stylesheet" href="./css/style.css" type="text/css">
+    <script src="https://js.arcgis.com/4.15/"></script>
+</head>
+<body>
+    <div id="map-view"></div>
+
+    <div class="charts-block">
+        <form id="upload-form"> 
+            <input type="file" id="inp-file" hidden="hidden">
+            <button type="button" id="inp-file-button">Choose a file</button>
+            <span id="inp-file-text">No file chosen, yet</span>
+        </form>
+        <button class="reset-button" id="zoom-reset">Reset graphs</button>
+
+        <div class="charts">
+            <canvas id="alt-chart" height="150px"></canvas>
+            <canvas id="pr-chart" height="150px"></canvas>
+            <canvas id="yaw-chart" height="150px"></canvas>
+            <canvas id="pos-chart" height="150px"></canvas>
+            <canvas id="vel-chart" height="150px"></canvas>
+            <canvas id="numsat-chart" height="150px"></canvas>
+        </div>
+    </div>
+
+    <div id="cover-spin"></div>
+
+    <script src="./js/helpers.js"></script>
+    <script src="./js/index.js"></script>
+</body>
+</html>

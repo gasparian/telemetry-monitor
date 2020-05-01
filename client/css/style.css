@@ -1,0 +1,129 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#map-view {
+    position: absolute;
+    width: 54%;
+    left: 0px;
+    bottom: 0px;
+    top: 0px;
+}
+
+.charts-block {
+    position: relative;
+    width: 45%;
+    float: right;
+    overflow: hidden;
+    top: 0px;
+    left: 0px;
+    padding-right: 10px;
+    padding-left: 10px;
+    height: 100%;
+    background-color: #333333;
+}
+    #upload-form {
+        padding-top: 10px;
+        padding-left: 10px;
+    }   
+        #inp-file-button {
+            padding: 10px;
+            height: 5%;
+            width: 17%;
+            color: black;
+            background-color: #009578;
+            border: 1px solid #000;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        #inp-file-button hover {
+            background-color: #00b28f;
+        }
+
+        #inp-file-text {
+            margin-left: 10px;
+            font-family: sans-sherif;
+            color: #FFFFFF;
+        }
+
+    .reset-button {
+        position: relative;
+        background-color: #aaaaaa;
+        border: 1px solid #000;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 141px;
+        height: 35px;
+        top: 10px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+
+    .reset-button:hover {
+        background-color: #bbbbbb;
+    }
+
+    .charts {
+        margin-left: 5px;
+        margin-top: 20px;
+        height: 840px;
+        overflow: auto;
+    }
+
+    ::-webkit-scrollbar {
+        width: 20px;
+    }
+
+      /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+    }
+   
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #888; 
+    }
+    
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555; 
+    }
+
+#cover-spin {
+    position: fixed;
+    width: 100%;
+    left: 0; 
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(255,255,255,0.7);
+    z-index:9999;
+    display: none; /* switch this */
+}
+
+@-webkit-keyframes spin {
+    from {-webkit-transform:rotate(0deg);}
+    to {-webkit-transform:rotate(360deg);}
+}
+
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
+
+#cover-spin::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left:48%;top: 40%;
+    width:40px;height: 40px;
+    border-style: solid;
+    border-color: black;
+    border-top-color: transparent;
+    border-width: 4px;
+    border-radius: 50%;
+    -webkit-animation: spin .8s linear infinite;
+    animation: spin .8s linear infinite;
+}
