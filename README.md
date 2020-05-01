@@ -8,11 +8,14 @@ https://gasparian.github.io/telemetry_monitor/client/
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
+ - make offline playback;  
+ - make interactive playback via https requests;  
+ - build simple server on node\python for data transmittion;  
+ - build http-server on C++;  
  - charts.js --> D3.js;  
- - add COM-port settings form;  
- - make com port available via chrome extensions;  
  - work with graphs' zooming/panning;  
- - add tabs in a right field: chart and control panel;  
+ - add tabs in a right field: chart and control panel (?);  
+ - make com port available via chrome extensions (?);  
 
 ### Libs  
  - ArcGIS;  
