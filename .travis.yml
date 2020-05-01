@@ -4,7 +4,9 @@ services:
   - docker
 
 before_install:
-  - docker build -t telemetry_monitor .
+  - docker build -t gaspatelemetry_monitor .
+
+script:
   - docker run -d -p 127.0.0.1:80:3000 telemetry_monitor:latest 
 
 deploy:
