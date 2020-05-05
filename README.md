@@ -9,9 +9,9 @@ If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) d
 
 ### To do:  
  - make covariance as transparent polygon;  
- - make offline playback;  
+ - make offline playback;   
  - make interactive playback via https requests;  
- - build simple server on node\python for data transmittion;  
+ - build simple node\python server for data transmittion;  
  - build http-server on C++;  
  - charts.js --> D3.js;  
  - work with graphs' zooming/panning;  

@@ -16,19 +16,67 @@
     <div id="map-view"></div>
 
     <div class="charts-block">
-        <form id="upload-form"> 
-            <input type="file" id="inp-file" hidden="hidden">
-            <button type="button" id="inp-file-button">Choose a file</button>
-            <span id="inp-file-text">No file chosen, yet</span>
-        </form>
-        <button class="reset-button" id="zoom-reset">Reset graphs</button>
+        <div class="control-block">
+            <div class="buttons-block">
+                <div id="upload-file"> 
+                    <input type="file" id="inp-file" hidden="hidden">
+
+                    <button type="button" id="inp-file-button">Choose a file</button>
+                </div>
+
+                <div id="left-buttons">
+                    <button class="player-buttons" id="zoom-reset">
+                        <img src="./img/reset-bold.png" class="button-img"/>
+                    </button>
+
+                    <button class="player-buttons" id="play">
+                        <img src="./img/play-bold.png" class="button-img"/>
+                    </button>
+
+                    <button class="player-buttons" id="pause">
+                        <img src="./img/pause-bold.png" class="button-img"/>
+                    </button>
+
+                    <button class="player-buttons" id="stop">
+                        <img src="./img/stop-bold.png" class="button-img"/>
+                    </button>
+                </div>
+            </div>
+
+            <div id="server-command-block">
+                <div id="server-input">
+                    <div id="server-input-fields">
+                        <input type="text" class="server-input-field" placeholder="Server address...">
+
+                        <input type="text" class="server-input-field" placeholder="Server command...">
+                    </div>
+
+                    <button type="button" id="server-start-button">Send</button>
+                </div>
+
+                <div id="freq-input">
+                    <input type="range" id="range-freq" name="range-input" min="0" max="6" value="3" step="1">
+
+                    <div id="range-output">10 Hz</div>
+                </div>
+            </div>
+
+            <div id="server-log-block">
+                <input type="text" id="server-log" placeholder="Server output..."/>
+            </div>
+        </div>
 
         <div class="charts">
             <canvas id="alt-chart" height="150px"></canvas>
+
             <canvas id="pr-chart" height="150px"></canvas>
+
             <canvas id="yaw-chart" height="150px"></canvas>
+
             <canvas id="pos-chart" height="150px"></canvas>
+
             <canvas id="vel-chart" height="150px"></canvas>
+
             <canvas id="numsat-chart" height="150px"></canvas>
         </div>
     </div>
