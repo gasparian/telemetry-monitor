@@ -132,8 +132,6 @@ function drawMapPolyline(arr) {
     graphicsLayer.add(polylineGraphic);
     sceneView.center = [clon, clat];
     sceneView.zoom = 17;
-
-    console.log(thin, newArr.length);
 }
 
 function drawCone(lon, lat, finish=false) {
