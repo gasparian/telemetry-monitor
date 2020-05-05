@@ -11,7 +11,7 @@ function processData(file, altchart, prchart, yawchart, poschart, velchart, nums
             numsatchart.drawSingle(parsedCsv.ts, parsedCsv.numsatArr);
             prchart.drawPr(parsedCsv);
             graphicsLayer.removeAll();
-            drawMapPolyline(parsedCsv, thin=globThin);
+            drawMapPolyline(parsedCsv);
         }
     };
     reader.readAsBinaryString(file);
@@ -22,10 +22,6 @@ function roundToPrecision(x, precision) {
 }
 
 function parseCsv(measurements) {
-    let thin = 1;
-    if (measurements.length >= 5000) {
-        thin = 20;
-    }
     // long/latt
     let longLatArr = [];
     // pitch/roll/yaw arrays
@@ -45,7 +41,7 @@ function parseCsv(measurements) {
     let t0, dt;
     let cols = [];
     measurements.forEach(measurement => {
-        if (count % thin) {
+        if (count % globThin) {
             count++;
             return;
         } 
@@ -85,30 +81,29 @@ function parseCsv(measurements) {
     return { ts, pArr, rArr, yArr, altArr, posAccArr, velAccArr, numsatArr, longLatArr };
 };
 
-function drawMapPolyline(arr, thin=10) {
+function drawMapPolyline(arr) {
     let clon = 0;
     let clat = 0;
     let i = 0;
-    let newArr = [];
-    let len = Math.floor(arr.posAccArr.length / thin);
+    let len = arr.longLatArr.length;
     // calculate new scene center and 
     // draw pos_accuracy
     arr.longLatArr.forEach( a => {
-        if ( !(i % thin) & (i > 0) ) {
-            clon += a[0] / len;
-            clat += a[1] / len;
-            newArr.push(a);
-            drawPosAcc(a[0], a[1], 
-                       arr.posAccArr[i], mult=globPosMult);
-        };
+        clon += a[0];
+        clat += a[1];
+        drawPosAcc(a[0], a[1], 
+                    arr.posAccArr[i], mult=globPosMult);
         i++;
     });
-    drawCone(newArr[0][0], newArr[0][1], false);
-    drawCone(newArr[newArr.length - 1][0], newArr[newArr.length - 1][1], true);
+    clon /= len;
+    clat /= len;
+
+    drawCone(arr.longLatArr[0][0], arr.longLatArr[0][1], false);
+    drawCone(arr.longLatArr[len - 1][0], arr.longLatArr[len - 1][1], true);
 
     let polyline = {
         type: "polyline",
-        paths: newArr
+        paths: arr.longLatArr
     };
 
     let lineSymbol = {
@@ -385,3 +380,4 @@ function Stopwatch() {
         }
     });
 }
+

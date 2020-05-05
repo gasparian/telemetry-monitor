@@ -3,12 +3,36 @@
 let globPosMult = 2;
 let globThin = 10;
 
+// file upload
 const fileInput = document.getElementById("inp-file");
 const fileInputBtn = document.getElementById("inp-file-button");
-const fileInputText = document.getElementById("inp-file-text");
 fileInputBtn.onclick = function(e) {
     fileInput.click();
 };
+
+// freq. input
+let freqValues = [1,2,5,10,20,50,100];
+let maxFreq = 100;
+const range = document.getElementById("range-freq");
+const rangeVal = document.getElementById("range-output");
+range.oninput = function(e) {
+    rangeVal.innerHTML = `${freqValues[range.value]} Hz`;
+    globThin = Math.floor(maxFreq / freqValues[range.value]);
+    fileInput.value = "";
+};
+
+// Use later as an example of input forms 
+// rangeVal.addEventListener("click", () => {
+//     rangeVal.value = "";
+// });
+// rangeVal.addEventListener("keyup", function(event) {
+//     event.preventDefault();
+//     if (event.keyCode === 13) {
+//         range.value = rangeVal.value;
+//         rangeVal.value = `${rangeVal.value} Hz`;
+//         updateThinFromRange();
+//     }
+// });
 
 // Init graphs
 let altChart = new myChart(ylabel="Alt, m", chartName='alt-chart', title="Altitude");
@@ -67,7 +91,8 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 const sw = new Stopwatch();
 fileInput.onchange = function(e) {
     if (fileInput.value) {
-        fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
+        // Rename button or text later ?
+        // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
 
         switchCoverSpin(true);
         sw.start();
@@ -83,3 +108,24 @@ fileInput.onchange = function(e) {
 };
 
 /*-------------------------------------------- Graphs -----------------------------------------------*/
+
+/*----------------------------------------- Offline Player -------------------------------------------*/
+
+playBtn = document.getElementById("play");
+pauseBtn = document.getElementById("pause");
+stopBtn = document.getElementById("stop");
+const slider = document.querySelector('input[name=range-input]')
+
+playBtn.onclick = function(e) {
+    slider.style.setProperty('--sliderColor', `#888`)
+    slider.style.setProperty('--trackColor', `#888`)
+    range.disabled = true;
+};
+
+stopBtn.onclick = function(e) {
+    slider.style.setProperty('--sliderColor', `#f1f1f1`)
+    slider.style.setProperty('--trackColor', `#639fff`)
+    range.disabled = false;
+};
+
+/*----------------------------------------- Offline Player -------------------------------------------*/

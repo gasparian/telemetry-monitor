@@ -23,49 +23,185 @@ html, body {
     height: 100%;
     background-color: #333333;
 }
-    #upload-form {
-        padding-top: 10px;
-        padding-left: 10px;
-    }   
-        #inp-file-button {
-            padding: 10px;
-            height: 5%;
-            width: 17%;
-            color: black;
-            background-color: #009578;
-            border: 1px solid #000;
-            border-radius: 10px;
-            cursor: pointer;
-        }
 
-        #inp-file-button hover {
-            background-color: #00b28f;
-        }
-
-        #inp-file-text {
-            margin-left: 10px;
-            font-family: sans-sherif;
-            color: #FFFFFF;
-        }
-
-    .reset-button {
+    .control-block {
         position: relative;
-        background-color: #aaaaaa;
-        border: 1px solid #000;
-        border-radius: 10px;
-        cursor: pointer;
-        width: 141px;
-        height: 35px;
-        top: 10px;
-        margin-left: 10px;
-        margin-right: 10px;
+        height: 10%;
+        width: 100%;
+        margin-top: 2%;
+        margin-bottom: 2%;
+        margin-left: 1%;
     }
 
-    .reset-button:hover {
-        background-color: #bbbbbb;
-    }
+        .buttons-block {
+            position: relative;
+            float: left;
+            width: 25%;
+            height: 100%;
+        }
+            #upload-file {
+                height: 50%;
+                width: 100%;
+                margin-bottom: 1%;
+            }
+                #inp-file-button {
+                    height: 100%;
+                    width: 100%;
+                    position: relative;
+                    color: black; 
+                    background-color: #009578;
+                    border: 1px solid #000;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    text-align: center;
+                    font-size: 100%; 
+                }
+
+                #inp-file-button:hover {
+                    background-color: #00b28f;
+                }
+
+            #left-buttons {
+                position: relative;
+                /* top: 1%; */
+                /* width: 100%; */
+                width: auto;
+                height: 50%;
+                text-align: center;
+                justify-content: space-between;
+                display: flex;
+            }
+
+                .player-buttons {
+                    position: relative;
+                    margin: 1%;
+                    background-color: #aaaaaa;
+                    border: 1px solid #000;
+                    border-radius: 20%;
+                    cursor: pointer;
+                }
+                    .button-img {
+                        display: block;
+                        margin-left: auto;
+                        margin-right: auto;
+                        width: 80%;
+                    }
+
+                .player-buttons:hover { 
+                    background-color: #bbbbbb;
+                }
+
+        #server-command-block {
+            position: relative;
+            top: 2%;
+            width: 37.5%;
+            height: 100%;
+            float: left;
+        }
+            #server-input {
+                height: 50%;
+                width: 100%;
+            }
+                #server-input-fields {
+                    position: relative;
+                    float: left;
+                    width: 61%;
+                    height: 60%;
+                }
+                    .server-input-field {
+                        margin-right: 0;
+                        margin-left: 2.5%;
+                        margin-top: 1%;
+                        margin-bottom: 1%;
+                        height: 48%;
+                        width: 100%;
+                        background-color: #f1f1f1;
+                        border-radius: 5px;
+                        padding-left: 2px;
+                    }
+
+                #server-start-button {
+                    width: 32%;
+                    height: 100%;
+                    position: relative;
+                    float: right;
+                    color: black; 
+                    background-color: #009578;
+                    border: 1px solid #000;
+                    border-radius: 10px;
+                    cursor: pointer;
+                    text-align: center;
+                    font-size: 100%; 
+                    margin-right: 1%;
+                }
+
+                #server-start-button:hover {
+                    background-color: #00b28f;
+                }
+
+            #freq-input {
+                height: 25%;
+                position: relative;
+                margin-left: 2%;
+                margin-top: 4%;
+                width: 100%;
+            }
+    
+                #range-freq {
+                    width: 62%;
+                    -webkit-appearance: none;
+                    --sliderColor: #f1f1f1;
+                    --trackColor: #639fff;
+                }
+
+                    #range-freq::-webkit-slider-runnable-track {
+                        width: 100%;
+                        height: 7px;
+                        cursor: pointer;
+                        background: var(--trackColor);
+                    }
+
+                    #range-freq::-webkit-slider-thumb {
+                        height: 20px;
+                        width: 20px;
+                        border-radius: 50%;
+                        background: var(--sliderColor);
+                        box-shadow: 0 0 4px 0 rgba(0,0,0, 1);
+                        cursor: pointer;
+                        -webkit-appearance: none;
+                        margin-top: -7px;
+                    }
+    
+                #range-output {
+                    float: right;
+                    margin-left: 1%;
+                    width: 35%;
+                    color: #f1f1f1;
+                    margin-top: 0.5%;
+                    font-size: 100%;
+                }
+
+        #server-log-block {
+            position: relative;
+            margin:0 auto;
+            display: inline-block;
+            width: 37.5%;
+            height: 100%;
+            top: 2%;
+        }
+
+            #server-log {
+                width: 94.5%;
+                height: 100%;
+                padding-left: 2px;
+                margin-right: 4%;
+                margin-left: 1.5%;
+                background-color: #f1f1f1;
+                border-radius: 5px;
+            }
 
     .charts {
+        position: relative;
         margin-left: 5px;
         margin-top: 20px;
         height: 840px;
