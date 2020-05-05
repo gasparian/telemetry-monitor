@@ -82,28 +82,39 @@ function parseCsv(measurements) {
 };
 
 function drawMapPolyline(arr) {
+    let maxPointsDraw = 2000;
     let clon = 0;
     let clat = 0;
     let i = 0;
+    let counter = 0;
+    let thin = 1;
     let len = arr.longLatArr.length;
+    if ( len > maxPointsDraw ) {
+        thin = Math.ceil(len / maxPointsDraw);
+    }
+    let newArr = [];
     // calculate new scene center and 
     // draw pos_accuracy
     arr.longLatArr.forEach( a => {
-        clon += a[0];
-        clat += a[1];
-        drawPosAcc(a[0], a[1], 
-                    arr.posAccArr[i], mult=globPosMult);
+        if ( !(i % thin) ) {
+            clon += a[0];
+            clat += a[1];
+            newArr.push(a);
+            drawPosAcc(a[0], a[1], 
+                       arr.posAccArr[i], mult=globPosMult);
+            counter++;
+        }
         i++;
     });
-    clon /= len;
-    clat /= len;
+    clon /= counter;
+    clat /= counter;
 
-    drawCone(arr.longLatArr[0][0], arr.longLatArr[0][1], false);
-    drawCone(arr.longLatArr[len - 1][0], arr.longLatArr[len - 1][1], true);
+    drawCone(newArr[0][0], newArr[0][1], false);
+    drawCone(newArr[newArr.length - 1][0], newArr[newArr.length - 1][1], true);
 
     let polyline = {
         type: "polyline",
-        paths: arr.longLatArr
+        paths: newArr
     };
 
     let lineSymbol = {
@@ -121,6 +132,8 @@ function drawMapPolyline(arr) {
     graphicsLayer.add(polylineGraphic);
     sceneView.center = [clon, clat];
     sceneView.zoom = 17;
+
+    console.log(thin, newArr.length);
 }
 
 function drawCone(lon, lat, finish=false) {
