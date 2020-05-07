@@ -8,6 +8,7 @@ https://gasparian.github.io/telemetry_monitor/client/
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
+ - too much globals!;  
  - make simple offline playback (visualize map and graph in batches - 2x speed (`2 / (1 / thin)` samples) );  
  - make covariance as transparent polygon;  
  - make offline playback;   
