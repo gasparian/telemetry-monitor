@@ -49,8 +49,11 @@ html, body {
                     width: 100%;
                     position: relative;
                     color: black; 
-                    background-color: #009578;
+                    --inpBtnColor: #009578;
+                    --inpBtnColorHover: #00b28f;
+                    background-color: var(--inpBtnColor);
                     border: 1px solid #000;
+                    opacity: 0.8;
                     border-radius: 10px;
                     cursor: pointer;
                     text-align: center;
@@ -58,7 +61,7 @@ html, body {
                 }
 
                 #inp-file-button:hover {
-                    background-color: #00b28f;
+                    background-color: var(--inpBtnColorHover);
                 }
 
             #left-buttons {
@@ -84,7 +87,7 @@ html, body {
                         display: block;
                         margin-left: auto;
                         margin-right: auto;
-                        width: 80%;
+                        width: 60%;
                     }
 
                 .player-buttons:hover { 
@@ -126,7 +129,10 @@ html, body {
                     position: relative;
                     float: right;
                     color: black; 
-                    background-color: #009578;
+                    --sendColor: #009578;
+                    --sendColorHover: #00b28f;
+                    background-color: var(--sendColor);
+                    opacity: 0.8;
                     border: 1px solid #000;
                     border-radius: 10px;
                     cursor: pointer;
@@ -136,7 +142,7 @@ html, body {
                 }
 
                 #server-start-button:hover {
-                    background-color: #00b28f;
+                    background-color: var(--sendColorHover);
                 }
 
             #freq-input {
