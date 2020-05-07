@@ -8,12 +8,12 @@ https://gasparian.github.io/telemetry_monitor/client/
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
- - add thrsh for points on a map ( <= 1000 ?);  
+ - make simple offline playback (visualize map and graph in batches - 2x speed (`2 / (1 / thin)` samples) );  
  - make covariance as transparent polygon;  
  - make offline playback;   
  - make interactive playback via https requests;  
  - build simple node\python server for data transmittion;  
- - build http-server on C++;  
+ - build server on C++ (use web-sockets!);  
  - charts.js --> D3.js;  
  - work with graphs' zooming/panning;  
  - add tabs in a right field: chart and control panel (?);  

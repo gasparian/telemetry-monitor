@@ -3,6 +3,16 @@
 let globPosMult = 2;
 let globThin = 10;
 
+// buttons 
+playBtn = document.getElementById("play");
+pauseBtn = document.getElementById("pause");
+stopBtn = document.getElementById("stop");
+const serverBtn = document.getElementById("server-start-button");
+const slider = document.querySelector('input[name=range-input]');
+
+// text io
+// TO DO
+
 // file upload
 const fileInput = document.getElementById("inp-file");
 const fileInputBtn = document.getElementById("inp-file-button");
@@ -20,19 +30,6 @@ range.oninput = function(e) {
     globThin = Math.floor(maxFreq / freqValues[range.value]);
     fileInput.value = "";
 };
-
-// Use later as an example of input forms 
-// rangeVal.addEventListener("click", () => {
-//     rangeVal.value = "";
-// });
-// rangeVal.addEventListener("keyup", function(event) {
-//     event.preventDefault();
-//     if (event.keyCode === 13) {
-//         range.value = rangeVal.value;
-//         rangeVal.value = `${rangeVal.value} Hz`;
-//         updateThinFromRange();
-//     }
-// });
 
 // Init graphs
 let altChart = new myChart(ylabel="Alt, m", chartName='alt-chart', title="Altitude");
@@ -96,9 +93,7 @@ fileInput.onchange = function(e) {
 
         switchCoverSpin(true);
         sw.start();
-        processData(fileInput.files[0], 
-                    altChart, prChart, yawChart,
-                    posChart, velChart, numsatChart);
+        processData(batchSize=null);
         sw.start();
 
         setTimeout(() => switchCoverSpin(false), 
@@ -111,21 +106,71 @@ fileInput.onchange = function(e) {
 
 /*----------------------------------------- Offline Player -------------------------------------------*/
 
-playBtn = document.getElementById("play");
-pauseBtn = document.getElementById("pause");
-stopBtn = document.getElementById("stop");
-const slider = document.querySelector('input[name=range-input]')
-
+let batchSize = Math.floor(2/(1/globThin));
 playBtn.onclick = function(e) {
-    slider.style.setProperty('--sliderColor', `#888`)
-    slider.style.setProperty('--trackColor', `#888`)
+    changeBtnStatus(slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(serverBtn, "sendColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
     range.disabled = true;
+
+    processData(batchSize);
 };
 
 stopBtn.onclick = function(e) {
-    slider.style.setProperty('--sliderColor', `#f1f1f1`)
-    slider.style.setProperty('--trackColor', `#639fff`)
+    changeBtnStatus(slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
+    changeBtnStatus(slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
+    changeBtnStatus(serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+    changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
     range.disabled = false;
 };
 
+pauseBtn.onclick = function(e) {
+    //...
+}
+
 /*----------------------------------------- Offline Player -------------------------------------------*/
+
+/*-------------------------------------- Server Communication ----------------------------------------*/
+
+let serverBtnState = false;
+serverBtn.onclick = function(e) {
+    serverBtnState = serverBtnState ? false : true;
+
+    if (serverBtnState) {
+        changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
+        changeBtnStatus(slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
+        changeBtnStatus(slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
+        playBtn.disabled = true;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+        range.disabled = true;
+        changeBtnStatus(serverBtn, "sendColor", disabled=false, color=`#fc3503`, hoverColor=`#fc3503`);
+        serverBtn.innerHTML = "Close";
+    } else {
+        changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+        changeBtnStatus(slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
+        changeBtnStatus(slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
+        playBtn.disabled = false;
+        pauseBtn.disabled = false;
+        stopBtn.disabled = false;
+        range.disabled = false;
+        changeBtnStatus(serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+        serverBtn.innerHTML = "Open";
+    }
+}
+
+// Use later as an example of input forms 
+// rangeVal.addEventListener("click", () => {
+//     rangeVal.value = "";
+// });
+// rangeVal.addEventListener("keyup", function(event) {
+//     event.preventDefault();
+//     if (event.keyCode === 13) {
+//         range.value = rangeVal.value;
+//         rangeVal.value = `${rangeVal.value} Hz`;
+//         updateThinFromRange();
+//     }
+// });
+
+/*-------------------------------------- Server Communication ----------------------------------------*/

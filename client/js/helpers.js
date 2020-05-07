@@ -1,20 +1,34 @@
-function processData(file, altchart, prchart, yawchart, poschart, velchart, numsatchart) {
+function processData(batchSize=null) {
     let reader = new FileReader();
     reader.onloadend = function(e) {
         if (e.target.readyState == FileReader.DONE) {
+            graphicsLayer.removeAll();
             let measurements = reader.result.split("\n");
             let parsedCsv = parseCsv(measurements);
-            altchart.drawSingle(parsedCsv.ts, parsedCsv.altArr);
-            yawchart.drawSingle(parsedCsv.ts, parsedCsv.yArr);
-            poschart.drawSingle(parsedCsv.ts, parsedCsv.posAccArr);
-            velchart.drawSingle(parsedCsv.ts, parsedCsv.velAccArr);
-            numsatchart.drawSingle(parsedCsv.ts, parsedCsv.numsatArr);
-            prchart.drawPr(parsedCsv);
-            graphicsLayer.removeAll();
-            drawMapPolyline(parsedCsv);
+            prChart.drawPr([parsedCsv.ts[0]], [parsedCsv.pArr[0]], [parsedCsv.rArr[0]]);
+
+            let maxId = parsedCsv.ts.length;
+            batchSize = batchSize ? batchSize : maxId;  
+            let wEnd = batchSize;
+            let tsSlice = [];
+            drawCone(parsedCsv.longLatArr[0][0], parsedCsv.longLatArr[0][1], false);
+            for (let i=0; i < maxId;) {
+                wEnd = Math.min(i+batchSize, maxId);
+                tsSlice = parsedCsv.ts.slice(i, wEnd);
+                altChart.addData(tsSlice, parsedCsv.altArr.slice(i, wEnd));
+                yawChart.addData(tsSlice, parsedCsv.yArr.slice(i, wEnd));
+                posChart.addData(tsSlice, parsedCsv.posAccArr.slice(i, wEnd));
+                velChart.addData(tsSlice, parsedCsv.velAccArr.slice(i, wEnd));
+                numsatChart.addData(tsSlice, parsedCsv.numsatArr.slice(i, wEnd));
+                prChart.addData(tsSlice, parsedCsv.pArr.slice(i, wEnd), num=0);
+                prChart.addData([], parsedCsv.rArr.slice(i, wEnd), num=1);
+                drawMapPolyline(parsedCsv, start=i, end=wEnd);
+                i = wEnd;
+            }
+            drawCone(parsedCsv.longLatArr[wEnd-1][0], parsedCsv.longLatArr[wEnd-1][1], true);
         }
     };
-    reader.readAsBinaryString(file);
+    reader.readAsBinaryString(fileInput.files[0]);
   };
 
 function roundToPrecision(x, precision) {
@@ -81,40 +95,10 @@ function parseCsv(measurements) {
     return { ts, pArr, rArr, yArr, altArr, posAccArr, velAccArr, numsatArr, longLatArr };
 };
 
-function drawMapPolyline(arr) {
-    let maxPointsDraw = 2000;
-    let clon = 0;
-    let clat = 0;
-    let i = 0;
-    let counter = 0;
-    let thin = 1;
-    let len = arr.longLatArr.length;
-    if ( len > maxPointsDraw ) {
-        thin = Math.ceil(len / maxPointsDraw);
-    }
-    let newArr = [];
-    // calculate new scene center and 
-    // draw pos_accuracy
-    arr.longLatArr.forEach( a => {
-        if ( !(i % thin) ) {
-            clon += a[0];
-            clat += a[1];
-            newArr.push(a);
-            drawPosAcc(a[0], a[1], 
-                       arr.posAccArr[i], mult=globPosMult);
-            counter++;
-        }
-        i++;
-    });
-    clon /= counter;
-    clat /= counter;
-
-    drawCone(newArr[0][0], newArr[0][1], false);
-    drawCone(newArr[newArr.length - 1][0], newArr[newArr.length - 1][1], true);
-
+function drawPolyLine(arr, clon, clat) {
     let polyline = {
         type: "polyline",
-        paths: newArr
+        paths: arr
     };
 
     let lineSymbol = {
@@ -132,6 +116,59 @@ function drawMapPolyline(arr) {
     graphicsLayer.add(polylineGraphic);
     sceneView.center = [clon, clat];
     sceneView.zoom = 17;
+}
+
+// function drawMapPolyline(arr) {
+//     let maxPointsDraw = 2000;
+//     let clon = 0;
+//     let clat = 0;
+//     let i = 0;
+//     let counter = 0;
+//     let thin = 1;
+//     let len = arr.longLatArr.length;
+//     if ( len > maxPointsDraw ) {
+//         thin = Math.ceil(len / maxPointsDraw);
+//     }
+//     let newArr = [];
+//     // calculate new scene center and 
+//     // draw pos_accuracy
+//     arr.longLatArr.forEach( a => {
+//         if ( !(i % thin) | (i == (len - 1)) ) {
+//             clon += a[0];
+//             clat += a[1];
+//             newArr.push(a);
+//             drawPosAcc(a[0], a[1], 
+//                        arr.posAccArr[i], mult=globPosMult);
+//             counter++;
+//         }
+//         i++;
+//     });
+//     clon /= counter;
+//     clat /= counter;
+
+//     drawCone(newArr[0][0], newArr[0][1], false);
+//     drawCone(newArr[newArr.length - 1][0], newArr[newArr.length - 1][1], true);
+
+//     drawPolyLine(newArr, clon, clat);
+// }
+
+function drawMapPolyline(arr, start=0, end=-1) {
+    if (end < 0) {
+        end = arr.longLatArr.length;
+    }
+    let clon = 0;
+    let clat = 0;
+    let len = end - start;
+    for (let i=0; i < len; i++) {
+        clon += arr.longLatArr[i][0];
+        clat += arr.longLatArr[i][1];
+        drawPosAcc(arr.longLatArr[i][0], arr.longLatArr[i][1], 
+                   arr.posAccArr[i], mult=globPosMult);
+    }
+    clon /= len;
+    clat /= len;
+
+    drawPolyLine(arr.longLatArr, clon, clat);
 }
 
 function drawCone(lon, lat, finish=false) {
@@ -310,7 +347,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
         }
     });
 
-    removeData = function() {
+    this.removeData = function() {
         let end = this.chart.data.labels.length;
         for (let i=0; i<end; i++) {
             this.chart.data.labels.pop();
@@ -323,7 +360,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
         this.chart.update();
     };
 
-    addData = function(labels, data, num=0) {
+    this.addData = function(labels, data, num=0) {
         labels.forEach((label) => {
             this.chart.data.labels.push(label);
         });
@@ -333,19 +370,19 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
         this.chart.update();
     };
 
-    this.drawPr = function(data) {
-        this.chart.data.labels = data.ts;
+    this.drawPr = function(ts, pArr, rArr) {
+        this.chart.data.labels = ts;
         this.chart.data.datasets = [
             {
                 label: "pitch",
-                data: data.pArr,
+                data: pArr,
                 fill: false,
                 borderColor: 'rgba(99, 159, 255, 1)',
                 borderWidth: 1
             },
             {
                 label: "roll",
-                data: data.rArr,
+                data: rArr,
                 fill: false,
                 borderColor: 'rgba(255, 99, 159, 1)',
                 borderWidth: 1
@@ -392,3 +429,9 @@ function Stopwatch() {
     });
 }
 
+function changeBtnStatus(btn, name, disabled=true, color=`#888`, hoverColor=`#888`) {
+    name = "--" + name;
+    btn.style.setProperty(name, color);
+    btn.style.setProperty(name + "Hover", hoverColor);
+    btn.disabled = disabled;
+}
