@@ -62,7 +62,7 @@ class processDataFile {
         let tsSlice = [];
         while (this.i < this.maxId) {
             if (this.stop) {
-                throw "stoppedException";
+                throw "ExceptionStopped";
             }
             this.wEnd = Math.min(this.i+this.batchSize, this.maxId);
             tsSlice = this.parsedCsv.ts.slice(this.i, this.wEnd);
@@ -75,6 +75,7 @@ class processDataFile {
             GLOBS.prChart.addData([], this.parsedCsv.rArr.slice(this.i, this.wEnd), 1);
             drawMapPolyline(this.parsedCsv, this.i, this.wEnd);
             this.i = this.wEnd;
+            // 
             pause(GLOBS.globTimeoutMs);
             console.log("In a loop");
         }
