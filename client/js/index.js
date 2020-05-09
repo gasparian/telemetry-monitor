@@ -1,83 +1,94 @@
 /*---------------------------------------------------------------------------------------------------*/
-// position accuracy multiplier
-let globPosMult = 2;
-let globThin = 10;
+function getGlobs() {
+    return {
+        // position accuracy multiplier
+        "globPosMult": 2,
+        "globThin": 10,
+        "batchSize": 10,
+        "globTimeoutMs": 500,
 
-// buttons 
-playBtn = document.getElementById("play");
-pauseBtn = document.getElementById("pause");
-stopBtn = document.getElementById("stop");
-const serverBtn = document.getElementById("server-start-button");
-const slider = document.querySelector('input[name=range-input]');
+        // buttons 
+        "playBtn": document.getElementById("play"),
+        "pauseBtn": document.getElementById("pause"),
+        "stopBtn": document.getElementById("stop"),
+        "serverBtn": document.getElementById("server-start-button"),
+        "slider": document.querySelector('input[name=range-input]'),
 
-// text io
-// TO DO
+        // file upload
+        "fileInput": document.getElementById("inp-file"),
+        "fileInputBtn": document.getElementById("inp-file-button"),
 
-// file upload
-const fileInput = document.getElementById("inp-file");
-const fileInputBtn = document.getElementById("inp-file-button");
-fileInputBtn.onclick = function(e) {
-    fileInput.click();
+        "fileProcessor": new processDataFile(),
+
+        "rangeVal": document.getElementById("range-output"),
+        "range": document.getElementById("range-freq"),
+
+        // Init graphs
+        "altChart": new myChart(ylabel="Alt, m", chartName='alt-chart', title="Altitude"),
+        "prChart": new myChart(ylabel="Angle, rad.", chartName='pr-chart', title="Pitch/Roll"),
+        "yawChart": new myChart(ylabel="Angle, rad.", chartName='yaw-chart', title="Yaw"),
+        "posChart": new myChart(ylabel="Pos., m", chartName='pos-chart', title="pos_accuracy"),
+        "velChart": new myChart(ylabel="V, m/s", chartName='vel-chart', title="vel_accuracy"),
+        "numsatChart": new myChart(ylabel="#", chartName='numsat-chart', title="num_satelites"),
+
+        "resetZoom": document.getElementById("zoom-reset"),
+
+        // maps globals
+        "currentMap": undefined,
+        "mapView": undefined,
+        "sceneView": undefined,
+        "Graphic": undefined,
+        "graphicsLayer": undefined,
+        "Point": undefined,
+        "multiPoint": undefined
+    }
+}
+
+let GLOBS = getGlobs();
+
+GLOBS.fileInputBtn.onclick = function(e) {
+    GLOBS.fileInput.click();
 };
 
 // freq. input
 let freqValues = [1,2,5,10,20,50,100];
 let maxFreq = 100;
-const range = document.getElementById("range-freq");
-const rangeVal = document.getElementById("range-output");
-range.oninput = function(e) {
-    rangeVal.innerHTML = `${freqValues[range.value]} Hz`;
-    globThin = Math.floor(maxFreq / freqValues[range.value]);
-    fileInput.value = "";
+GLOBS.range.oninput = function(e) {
+    GLOBS.rangeVal.innerHTML = `${freqValues[GLOBS.range.value]} Hz`;
+    GLOBS.globThin = Math.floor(maxFreq / freqValues[GLOBS.range.value]);
+    GLOBS.fileInput.value = "";
 };
 
-// Init graphs
-let altChart = new myChart(ylabel="Alt, m", chartName='alt-chart', title="Altitude");
-let prChart = new myChart(ylabel="Angle, rad.", chartName='pr-chart', title="Pitch/Roll");
-let yawChart = new myChart(ylabel="Angle, rad.", chartName='yaw-chart', title="Yaw");
-let posChart = new myChart(ylabel="Pos., m", chartName='pos-chart', title="pos_accuracy");
-let velChart = new myChart(ylabel="V, m/s", chartName='vel-chart', title="vel_accuracy");
-let numsatChart = new myChart(ylabel="#", chartName='numsat-chart', title="num_satelites");
-
-const resetZoom = document.getElementById("zoom-reset");
-resetZoom.onclick = function(e) {
-    altChart.chart.resetZoom();
-    prChart.chart.resetZoom();
-    yawChart.chart.resetZoom();
-    posChart.chart.resetZoom();
-    velChart.chart.resetZoom();
-    numsatChart.chart.resetZoom();
+GLOBS.resetZoom.onclick = function(e) {
+    GLOBS.altChart.chart.resetZoom();
+    GLOBS.prChart.chart.resetZoom();
+    GLOBS.yawChart.chart.resetZoom();
+    GLOBS.posChart.chart.resetZoom();
+    GLOBS.velChart.chart.resetZoom();
+    GLOBS.numsatChart.chart.resetZoom();
 };
 
 /*---------------------------------------------------------------------------------------------------*/
 
 /*-------------------------------------------- ArcGIS -----------------------------------------------*/
-// maps globals
-let currentMap;
-let mapView;
-let sceneView;
-let Graphic;
-let graphicsLayer;
-let Point;
-let multiPoint;
 
 // initialize ArcGIS map
 require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic", 
          "esri/layers/GraphicsLayer", "esri/geometry/Point", "esri/geometry/Multipoint"], 
         function(Map, MapView, SceneView, GraphicClass, GraphicsLayer, PointClass, MultipointClass) {
-    currentMap = new Map({basemap: "streets-night-vector"});
-    sceneView = new SceneView({
+    GLOBS.currentMap = new Map({basemap: "streets-night-vector"});
+    GLOBS.sceneView = new SceneView({
         container: "map-view",
-        map: currentMap,
+        map: GLOBS.currentMap,
         zoom: 12,
         center: [11.5820, 48.1351]
     });
-    graphicsLayer = new GraphicsLayer();
-    currentMap.add(graphicsLayer);
+    GLOBS.graphicsLayer = new GraphicsLayer();
+    GLOBS.currentMap.add(GLOBS.graphicsLayer);
 
-    Graphic = GraphicClass;
-    Point = PointClass;
-    multiPoint = MultipointClass;
+    GLOBS.Graphic = GraphicClass;
+    GLOBS.Point = PointClass;
+    GLOBS.multiPoint = MultipointClass;
 });
 
 /*-------------------------------------------- ArcGIS -----------------------------------------------*/
@@ -85,20 +96,20 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 /*-------------------------------------------- Graphs -----------------------------------------------*/
 
 // read file callback
-const sw = new Stopwatch();
-fileInput.onchange = function(e) {
-    if (fileInput.value) {
+const readSw = new Stopwatch();
+GLOBS.fileInput.onchange = function(e) {
+    if (GLOBS.fileInput.value) {
         // Rename button or text later ?
         // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
 
         switchCoverSpin(true);
-        sw.start();
-        processData(batchSize=null);
-        sw.start();
+        readSw.start();
+        GLOBS.fileProcessor.loadFile();
+        readSw.stop();
 
         setTimeout(() => switchCoverSpin(false), 
-                   sw.duration <= 1.0 ? 1000 : 10);
-        sw.reset();
+                   readSw.duration <= 1.0 ? 1000 : 10);
+        readSw.reset();
     } 
 };
 
@@ -106,27 +117,54 @@ fileInput.onchange = function(e) {
 
 /*----------------------------------------- Offline Player -------------------------------------------*/
 
-let batchSize = Math.floor(2/(1/globThin));
-playBtn.onclick = function(e) {
-    changeBtnStatus(slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
-    changeBtnStatus(slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
-    changeBtnStatus(serverBtn, "sendColor", disabled=true, color=`#888`, hoverColor=`#888`);
-    changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
-    range.disabled = true;
+let playClicked = false;
+GLOBS.playBtn.onclick = async function(e) {
+    playClicked = true;
+    changeBtnStatus(GLOBS.slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(GLOBS.slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    GLOBS.range.disabled = true;
 
-    processData(batchSize);
+    GLOBS.fileProcessor.batchSize = GLOBS.batchSize;
+    if (!GLOBS.fileProcessor.stop) {
+        GLOBS.fileProcessor.clearDrawing();
+        GLOBS.fileProcessor.initVars(false);
+        GLOBS.fileProcessor.draw();
+    } else {
+        GLOBS.fileProcessor.batchDraw();
+    }
+    GLOBS.fileProcessor.batchSize = null;
+    GLOBS.fileProcessor.stop = false;
 };
 
-stopBtn.onclick = function(e) {
-    changeBtnStatus(slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
-    changeBtnStatus(slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
-    changeBtnStatus(serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
-    changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
-    range.disabled = false;
+const stopSw = new Stopwatch();
+GLOBS.stopBtn.onclick = function(e) {
+    changeBtnStatus(GLOBS.slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
+    changeBtnStatus(GLOBS.slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
+    changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+    changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+    GLOBS.range.disabled = false;
+
+    if (playClicked) {
+        switchCoverSpin(true);
+        stopSw.start();
+        GLOBS.fileProcessor.stop = true;
+        GLOBS.fileProcessor.batchDraw();
+        stopSw.stop();
+        GLOBS.fileProcessor.stop = false;
+        GLOBS.fileProcessor.batchSize = null;
+        setTimeout(() => switchCoverSpin(false), 
+                stopSw.duration <= 1.0 ? 1000 : 10);
+        stopSw.reset();
+        playClicked = false;
+    }
 };
 
-pauseBtn.onclick = function(e) {
-    //...
+GLOBS.pauseBtn.onclick = function(e) {
+    if (playClicked) {
+        GLOBS.fileProcessor.stop = true;
+    }
 }
 
 /*----------------------------------------- Offline Player -------------------------------------------*/
@@ -134,29 +172,29 @@ pauseBtn.onclick = function(e) {
 /*-------------------------------------- Server Communication ----------------------------------------*/
 
 let serverBtnState = false;
-serverBtn.onclick = function(e) {
+GLOBS.serverBtn.onclick = function(e) {
     serverBtnState = serverBtnState ? false : true;
 
     if (serverBtnState) {
-        changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
-        changeBtnStatus(slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
-        changeBtnStatus(slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
-        playBtn.disabled = true;
-        pauseBtn.disabled = true;
-        stopBtn.disabled = true;
-        range.disabled = true;
-        changeBtnStatus(serverBtn, "sendColor", disabled=false, color=`#fc3503`, hoverColor=`#fc3503`);
-        serverBtn.innerHTML = "Close";
+        changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
+        changeBtnStatus(GLOBS.slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
+        changeBtnStatus(GLOBS.slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
+        GLOBS.playBtn.disabled = true;
+        GLOBS.pauseBtn.disabled = true;
+        GLOBS.stopBtn.disabled = true;
+        GLOBS.range.disabled = true;
+        changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#fc3503`, hoverColor=`#fc3503`);
+        GLOBS.serverBtn.innerHTML = "Close";
     } else {
-        changeBtnStatus(fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
-        changeBtnStatus(slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
-        changeBtnStatus(slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
-        playBtn.disabled = false;
-        pauseBtn.disabled = false;
-        stopBtn.disabled = false;
-        range.disabled = false;
-        changeBtnStatus(serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
-        serverBtn.innerHTML = "Open";
+        changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+        changeBtnStatus(GLOBS.slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
+        changeBtnStatus(GLOBS.slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
+        GLOBS.playBtn.disabled = false;
+        GLOBS.pauseBtn.disabled = false;
+        GLOBS.stopBtn.disabled = false;
+        GLOBS.range.disabled = false;
+        changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+        GLOBS.serverBtn.innerHTML = "Open";
     }
 }
 
