@@ -1,35 +1,95 @@
-function processData(batchSize=null) {
-    let reader = new FileReader();
-    reader.onloadend = function(e) {
-        if (e.target.readyState == FileReader.DONE) {
-            graphicsLayer.removeAll();
-            let measurements = reader.result.split("\n");
-            let parsedCsv = parseCsv(measurements);
-            prChart.drawPr([parsedCsv.ts[0]], [parsedCsv.pArr[0]], [parsedCsv.rArr[0]]);
+class processDataFile {
 
-            let maxId = parsedCsv.ts.length;
-            batchSize = batchSize ? batchSize : maxId;  
-            let wEnd = batchSize;
-            let tsSlice = [];
-            drawCone(parsedCsv.longLatArr[0][0], parsedCsv.longLatArr[0][1], false);
-            for (let i=0; i < maxId;) {
-                wEnd = Math.min(i+batchSize, maxId);
-                tsSlice = parsedCsv.ts.slice(i, wEnd);
-                altChart.addData(tsSlice, parsedCsv.altArr.slice(i, wEnd));
-                yawChart.addData(tsSlice, parsedCsv.yArr.slice(i, wEnd));
-                posChart.addData(tsSlice, parsedCsv.posAccArr.slice(i, wEnd));
-                velChart.addData(tsSlice, parsedCsv.velAccArr.slice(i, wEnd));
-                numsatChart.addData(tsSlice, parsedCsv.numsatArr.slice(i, wEnd));
-                prChart.addData(tsSlice, parsedCsv.pArr.slice(i, wEnd), num=0);
-                prChart.addData([], parsedCsv.rArr.slice(i, wEnd), num=1);
-                drawMapPolyline(parsedCsv, start=i, end=wEnd);
-                i = wEnd;
-            }
-            drawCone(parsedCsv.longLatArr[wEnd-1][0], parsedCsv.longLatArr[wEnd-1][1], true);
+    constructor() {
+        this.batchSize = null;
+        this.reader = new FileReader();
+        this.initVars(true);
+    }
+
+    initVars(deep=true) {
+        if (deep) {
+            this.parsedCsv = undefined;
+            this.maxId = 1;
         }
+        this.i = 0;
+        this.stop = false;
+        this.wEnd = this.batchSize;
+        return true;
     };
-    reader.readAsBinaryString(fileInput.files[0]);
-  };
+
+    loadFile() {
+        this.reader.onloadend = (e) => {
+            if (e.target.readyState == FileReader.DONE) {
+                this.clearDrawing();
+                this.initVars(true);
+                this.draw();
+            }
+        };
+        this.reader.readAsBinaryString(GLOBS.fileInput.files[0]);
+    };
+
+    clearDrawing() {
+        GLOBS.graphicsLayer.removeAll();
+        GLOBS.altChart.removeData();
+        GLOBS.yawChart.removeData();
+        GLOBS.posChart.removeData();
+        GLOBS.velChart.removeData();
+        GLOBS.numsatChart.removeData();
+        GLOBS.prChart.removeData();
+        return true;
+    };
+
+    draw() {
+        if (!this.parsedCsv) {
+            let measurements = this.reader.result.split("\n");
+            this.parsedCsv = parseCsv(measurements);
+            GLOBS.prChart.drawPr([this.parsedCsv.ts[0]], [this.parsedCsv.pArr[0]], [this.parsedCsv.rArr[0]]);
+            this.maxId = this.parsedCsv.ts.length;
+        }
+
+        this.batchSize = this.batchSize ? this.batchSize : this.maxId; // global variable mutation
+        this.wEnd = this.batchSize;
+        drawCone(this.parsedCsv.longLatArr[0][0], this.parsedCsv.longLatArr[0][1], false);
+        try {
+            this.batchDraw();
+        } catch {
+            return false;
+        }
+        return true;
+    };
+
+    batchDraw() {
+        let tsSlice = [];
+        while (this.i < this.maxId) {
+            if (this.stop) {
+                throw "stoppedException";
+            }
+            this.wEnd = Math.min(this.i+this.batchSize, this.maxId);
+            tsSlice = this.parsedCsv.ts.slice(this.i, this.wEnd);
+            GLOBS.altChart.addData(tsSlice, this.parsedCsv.altArr.slice(this.i, this.wEnd));
+            GLOBS.yawChart.addData(tsSlice, this.parsedCsv.yArr.slice(this.i, this.wEnd));
+            GLOBS.posChart.addData(tsSlice, this.parsedCsv.posAccArr.slice(this.i, this.wEnd));
+            GLOBS.velChart.addData(tsSlice, this.parsedCsv.velAccArr.slice(this.i, this.wEnd));
+            GLOBS.numsatChart.addData(tsSlice, this.parsedCsv.numsatArr.slice(this.i, this.wEnd));
+            GLOBS.prChart.addData(tsSlice, this.parsedCsv.pArr.slice(this.i, this.wEnd), 0);
+            GLOBS.prChart.addData([], this.parsedCsv.rArr.slice(this.i, this.wEnd), 1);
+            drawMapPolyline(this.parsedCsv, this.i, this.wEnd);
+            this.i = this.wEnd;
+            pause(GLOBS.globTimeoutMs);
+            console.log("In a loop");
+        }
+        drawCone(this.parsedCsv.longLatArr[this.wEnd-1][0], 
+                 this.parsedCsv.longLatArr[this.wEnd-1][1], true);
+        return true;
+    };
+};
+
+function pause(milliseconds) {
+	var dt = new Date();
+	while ((new Date()) - dt <= milliseconds) {
+        // ...
+    }
+}
 
 function roundToPrecision(x, precision) {
     return Math.round((x + Number.EPSILON) * precision) / precision;
@@ -39,23 +99,14 @@ function parseCsv(measurements) {
     // long/latt
     let longLatArr = [];
     // pitch/roll/yaw arrays
-    let pArr = [];
-    let rArr = [];
-    let yArr = [];
+    let pArr = [], rArr = [], yArr = [];
     // altitude array (m)
-    let altArr = [];
-    let posAccArr = [];
-    let velAccArr = [];
-    let numsatArr = [];
-    let ts = [];
-    let measurement_row = {};
-    let count = 0;
-    let flag = false;
-    let i = 0;
+    let altArr = [], posAccArr = [], velAccArr = [];
+    let numsatArr = [], ts = [], measurement_row = {};
+    let count = 0, flag = false, i = 0, cols = [];
     let t0, dt;
-    let cols = [];
     measurements.forEach(measurement => {
-        if (count % globThin) {
+        if (count % GLOBS.globThin) {
             count++;
             return;
         } 
@@ -107,15 +158,15 @@ function drawPolyLine(arr, clon, clat) {
         width: 2
     };
 
-    let polylineGraphic = new Graphic({
+    let polylineGraphic = new GLOBS.Graphic({
         geometry: polyline,
         symbol: lineSymbol
     });
 
     // draw polyline
-    graphicsLayer.add(polylineGraphic);
-    sceneView.center = [clon, clat];
-    sceneView.zoom = 17;
+    GLOBS.graphicsLayer.add(polylineGraphic);
+    GLOBS.sceneView.center = [clon, clat];
+    GLOBS.sceneView.zoom = 17;
 }
 
 // function drawMapPolyline(arr) {
@@ -163,7 +214,7 @@ function drawMapPolyline(arr, start=0, end=-1) {
         clon += arr.longLatArr[i][0];
         clat += arr.longLatArr[i][1];
         drawPosAcc(arr.longLatArr[i][0], arr.longLatArr[i][1], 
-                   arr.posAccArr[i], mult=globPosMult);
+                   arr.posAccArr[i], GLOBS.globPosMult);
     }
     clon /= len;
     clat /= len;
@@ -194,12 +245,12 @@ function drawCone(lon, lat, finish=false) {
         }]
     };
 
-    let pointGraphic = new Graphic({
+    let pointGraphic = new GLOBS.Graphic({
         geometry: point,
         symbol: pointSymbol
     });
 
-    graphicsLayer.add(pointGraphic);
+    GLOBS.graphicsLayer.add(pointGraphic);
 }
 
 function drawPosAcc(lon, lat, acc, mult=2) {
@@ -227,127 +278,130 @@ function drawPosAcc(lon, lat, acc, mult=2) {
         }]
     };
 
-    let pointGraphic = new Graphic({
+    let pointGraphic = new GLOBS.Graphic({
         geometry: point,
         symbol: pointSymbol
     });
 
-    graphicsLayer.add(pointGraphic);
+    GLOBS.graphicsLayer.add(pointGraphic);
 }
 
-function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
-    let ctx = document.getElementById(chartName).getContext('2d');
-    this.chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: title,
-                fill: false,
-                data: [],
-                borderColor: 'rgba(99, 159, 255, 1)',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            animation: {
-                duration: 0
-            },
-            legend: {
-                display: true,
-                labels: {
-                    fontColor: 'rgba(200, 200, 200, 1)',
-                    fontSize: 14
-                }
-            },
-            scales: { 
-                yAxes: [{
-                    ticks: {
-                        fontColor: 'rgba(200, 200, 200, 1)',
-                        padding: 5,
-                    },
-                    gridLines: {
-                        color: 'rgba(200, 200, 200, 0.6)',
-                        zeroLineColor: 'rgba(200, 200, 200, 1)',
-                        tickMarkLength: 0,
-                        drawBorder: true,
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: ylabel,
-                        fontColor: 'rgba(200, 200, 200, 1)',
-                        fontSize: 12
-                    }
-                }],
-                xAxes: [{
-                    ticks: {
-                        fontColor: 'rgba(200, 200, 200, 1)',
-                        padding: 5,
-                    },
-                    gridLines: {
-                        color: 'rgba(200, 200, 200, 0.6)',
-                        zeroLineColor: 'rgba(200, 200, 200, 1)',
-                        tickMarkLength: 0,
-                        drawBorder: true
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: "time, sec.",
-                        fontColor: 'rgba(200, 200, 200, 1)',
-                        fontSize: 12
-                    }
+class myChart {
+    constructor(ylabel="Y", chartName='alt-chart', title="Altitude") {
+        let ctx = document.getElementById(chartName).getContext('2d');
+        this.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: title,
+                    fill: false,
+                    data: [],
+                    borderColor: 'rgba(99, 159, 255, 1)',
+                    borderWidth: 2
                 }]
             },
-            title: {
-                display: false,
-                text: "",
-                fontColor: 'rgba(200, 200, 200, 1)'
-            },
-            elements: {
-                line: {
-                    tension: 0
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                animation: {
+                    duration: 0,
+                    lazy: false
                 },
-                point: {
-                    radius: 0
-                }
-            },
-            plugins: {
-                zoom: {
-                    pan: {
-                        // Boolean to enable panning
-                        enabled: true,
-                        mode: 'xy',
-                        rangeMin: {
-                            // Format of min pan range depends on scale type
-                            x: null,
-                            y: null
+                legend: {
+                    display: true,
+                    labels: {
+                        fontColor: 'rgba(200, 200, 200, 1)',
+                        fontSize: 14
+                    }
+                },
+                scales: { 
+                    yAxes: [{
+                        ticks: {
+                            fontColor: 'rgba(200, 200, 200, 1)',
+                            padding: 5,
                         },
-                        rangeMax: {
-                            // Format of max pan range depends on scale type
-                            x: null,
-                            y: null
+                        gridLines: {
+                            color: 'rgba(200, 200, 200, 0.6)',
+                            zeroLineColor: 'rgba(200, 200, 200, 1)',
+                            tickMarkLength: 0,
+                            drawBorder: true,
                         },
-                        // On category scale, factor of pan velocity
-                        speed: 1000,
-                        // Minimal pan distance required before actually applying pan
-                        threshold: 5
+                        scaleLabel: {
+                            display: true,
+                            labelString: ylabel,
+                            fontColor: 'rgba(200, 200, 200, 1)',
+                            fontSize: 12
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            fontColor: 'rgba(200, 200, 200, 1)',
+                            padding: 5,
+                        },
+                        gridLines: {
+                            color: 'rgba(200, 200, 200, 0.6)',
+                            zeroLineColor: 'rgba(200, 200, 200, 1)',
+                            tickMarkLength: 0,
+                            drawBorder: true
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: "time, sec.",
+                            fontColor: 'rgba(200, 200, 200, 1)',
+                            fontSize: 12
+                        }
+                    }]
+                },
+                title: {
+                    display: false,
+                    text: "",
+                    fontColor: 'rgba(200, 200, 200, 1)'
+                },
+                elements: {
+                    line: {
+                        tension: 0
                     },
+                    point: {
+                        radius: 0
+                    }
+                },
+                plugins: {
                     zoom: {
-                        enabled: true,
-                        // drag: {animationDuration: 500},
-                        drag: false,
-                        mode: 'x',
-                        speed: 1000,
-                        sensitivity: 0.00001
+                        pan: {
+                            // Boolean to enable panning
+                            enabled: true,
+                            mode: 'xy',
+                            rangeMin: {
+                                // Format of min pan range depends on scale type
+                                x: null,
+                                y: null
+                            },
+                            rangeMax: {
+                                // Format of max pan range depends on scale type
+                                x: null,
+                                y: null
+                            },
+                            // On category scale, factor of pan velocity
+                            speed: 1000,
+                            // Minimal pan distance required before actually applying pan
+                            threshold: 5
+                        },
+                        zoom: {
+                            enabled: true,
+                            // drag: {animationDuration: 500},
+                            drag: false,
+                            mode: 'x',
+                            speed: 1000,
+                            sensitivity: 0.00001
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
-    this.removeData = function() {
+    removeData() {
         let end = this.chart.data.labels.length;
         for (let i=0; i<end; i++) {
             this.chart.data.labels.pop();
@@ -360,7 +414,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
         this.chart.update();
     };
 
-    this.addData = function(labels, data, num=0) {
+    addData(labels, data, num=0) {
         labels.forEach((label) => {
             this.chart.data.labels.push(label);
         });
@@ -370,7 +424,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
         this.chart.update();
     };
 
-    this.drawPr = function(ts, pArr, rArr) {
+    drawPr(ts, pArr, rArr) {
         this.chart.data.labels = ts;
         this.chart.data.datasets = [
             {
@@ -391,7 +445,7 @@ function myChart(ylabel="Y", chartName='alt-chart', title="Altitude") {
         this.chart.update();
     };
 
-    this.drawSingle = function(ts, arr) {
+    drawSingle(ts, arr) {
         this.chart.data.labels = ts;
         this.chart.data.datasets[0].data = arr;
         this.chart.update();
@@ -402,31 +456,31 @@ function switchCoverSpin(visible) {
     document.getElementById("cover-spin").style.display = visible ? "block" : "none";
 }
 
-function Stopwatch() {
-    let t0 = 0, t1 = 0, duration = 0;
+class Stopwatch {
+    constructor() {
+        this.reset();
+    }
 
-    this.start = function() {
+    start() {
         let t = new Date();
-        t0 = t.getTime();
+        this.t0 = t.getTime();
     };
 
-    this.stop = function() {
+    stop() {
         let t = new Date();
-        t1 = t.getTime();
-        duration += (t1 - t0) / 1000.0;
+        this.t1 = t.getTime();
+        this.dt += (this.t1 - this.t0) / 1000.0;
     };
 
-    this.reset = function() {
-        t0 = 0;
-        t1 = 0;
-        duration = 0;
+    reset() {
+        this.t0 = 0; 
+        this.t1 = 0; 
+        this.dt = 0;
     };
 
-    Object.defineProperty(this, "duration", {
-        get: function() {
-            return duration;
-        }
-    });
+    get duration() {
+        return this.dt;
+    }
 }
 
 function changeBtnStatus(btn, name, disabled=true, color=`#888`, hoverColor=`#888`) {
