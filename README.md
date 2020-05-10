@@ -8,8 +8,7 @@ https://gasparian.github.io/telemetry_monitor/client/
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 
 ### To do:  
- - fix bathcing for maps (big files issues);  
- - make covariance with transparent polygons;  
+ - make text fields with current signals values;  
  - build server on C++ (use web-sockets --> boost.beast);  
  - glue server and client;  
  - charts.js --> D3.js (?);  
