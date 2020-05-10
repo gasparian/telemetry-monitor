@@ -4,13 +4,14 @@ let GLOBS = (function() {
         // position accuracy multiplier
         globPosMult: 2,
         globThin: 10,
-        batchSize: 10,
+        batchT: 1, // in sec.
+        batchSize: 10, // initial animation batch size
         globTimeoutMs: 500,
         stopFlag: false,
+        maxMapPoints: 1000, // map threshold; not used yet
 
         // buttons 
         playBtn: document.getElementById("play"),
-        pauseBtn: document.getElementById("pause"),
         stopBtn: document.getElementById("stop"),
         serverBtn: document.getElementById("server-start-button"),
         slider: document.querySelector('input[name=range-input]'),
@@ -70,6 +71,7 @@ let maxFreq = 100;
 GLOBS.range.oninput = function(e) {
     GLOBS.rangeVal.innerHTML = `${freqValues[GLOBS.range.value]} Hz`;
     GLOBS.globThin = Math.floor(maxFreq / freqValues[GLOBS.range.value]);
+    GLOBS.batchSize = Math.max(2, Math.floor(GLOBS.batchT / (1/freqValues[GLOBS.range.value])));
     GLOBS.fileInput.value = "";
 };
 
@@ -139,49 +141,59 @@ GLOBS.drawingFinished.registerListener(function(val) {
         GLOBS.stopFlag = false;
         playClicked = false;
         playerEnableBtns();
+        changeBtnStatus(GLOBS.playBtn, "playColor", disabled=false, color=`#aaaaaa`, hoverColor=`#bbbbbb`);
+        document.getElementById("play-button-img").src = "./img/play-bold.png";
     }
 });
 
 let playClicked = false;
 GLOBS.playBtn.onclick = async function(e) {
-    playClicked = true;
-    playerDisableBtns();
-    GLOBS.fileProcessor.batchSize = GLOBS.batchSize;
-    if (!GLOBS.stopFlag) {
-        GLOBS.fileProcessor.clearDrawing();
-        GLOBS.fileProcessor.initVars(false);
-        GLOBS.fileProcessor.startdraw();
-        GLOBS.drawingFinished.flag = false;
-        drawPause(GLOBS.fileProcessor);
-    } else {
-        drawPause(GLOBS.fileProcessor);
+    if (GLOBS.fileProcessor.parsedCsv) {
+        changeBtnStatus(GLOBS.playBtn, "playColor", disabled=false, color=`#bbbbbb`, hoverColor=`#bbbbbb`);
+        if (!playClicked) {
+            playClicked = true;
+            document.getElementById("play-button-img").src = "./img/pause-bold.png";
+            playerDisableBtns();
+            GLOBS.fileProcessor.batchSize = GLOBS.batchSize;
+            if (!GLOBS.stopFlag) {
+                GLOBS.fileProcessor.clearDrawing();
+                GLOBS.fileProcessor.initVars(false);
+                GLOBS.fileProcessor.startdraw();
+                GLOBS.drawingFinished.flag = false;
+                drawPause(GLOBS.fileProcessor);
+            } else {
+                drawPause(GLOBS.fileProcessor);
+            }
+        } else {
+            playClicked = false;
+            document.getElementById("play-button-img").src = "./img/play-bold.png";
+            if (!GLOBS.drawingFinished.flag) {
+                GLOBS.stopFlag = true;
+                stopAnimation();
+            }
+        }
     }
 };
 
 const stopSw = new Stopwatch();
 GLOBS.stopBtn.onclick = function(e) {
-    playerEnableBtns();
-    if (playClicked & !GLOBS.drawingFinished.flag) {
-        switchCoverSpin(true);
-        stopSw.start();
-        stopAnimation();
-        GLOBS.fileProcessor.batchSize = null;
-        GLOBS.fileProcessor.iterDraw();
-        stopSw.stop();
-        GLOBS.stopFlag = false;
-        setTimeout(() => switchCoverSpin(false), 
-                stopSw.duration <= 1.0 ? 1000 : 10);
-        stopSw.reset();
-        playClicked = false;
+    if (GLOBS.fileProcessor.parsedCsv) {
+        playerEnableBtns();
+        if (!GLOBS.drawingFinished.flag) {
+            switchCoverSpin(true);
+            stopSw.start();
+            stopAnimation();
+            GLOBS.fileProcessor.batchSize = null;
+            GLOBS.fileProcessor.iterDraw();
+            stopSw.stop();
+            GLOBS.stopFlag = false;
+            setTimeout(() => switchCoverSpin(false), 
+                    stopSw.duration <= 1.0 ? 1000 : 10);
+            stopSw.reset();
+            playClicked = false;
+        }
     }
 };
-
-GLOBS.pauseBtn.onclick = function(e) {
-    if (playClicked & !GLOBS.drawingFinished.flag) {
-        GLOBS.stopFlag = true;
-        stopAnimation();
-    }
-}
 
 /*----------------------------------------- Offline Player -------------------------------------------*/
 
@@ -190,13 +202,11 @@ GLOBS.pauseBtn.onclick = function(e) {
 let serverBtnState = false;
 GLOBS.serverBtn.onclick = function(e) {
     serverBtnState = serverBtnState ? false : true;
-
     if (serverBtnState) {
         changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
         changeBtnStatus(GLOBS.slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
         changeBtnStatus(GLOBS.slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
         GLOBS.playBtn.disabled = true;
-        GLOBS.pauseBtn.disabled = true;
         GLOBS.stopBtn.disabled = true;
         GLOBS.range.disabled = true;
         changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#fc3503`, hoverColor=`#fc3503`);
@@ -206,7 +216,6 @@ GLOBS.serverBtn.onclick = function(e) {
         changeBtnStatus(GLOBS.slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
         changeBtnStatus(GLOBS.slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
         GLOBS.playBtn.disabled = false;
-        GLOBS.pauseBtn.disabled = false;
         GLOBS.stopBtn.disabled = false;
         GLOBS.range.disabled = false;
         changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
