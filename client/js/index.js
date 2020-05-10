@@ -2,13 +2,18 @@
 let GLOBS = (function() {
     return {
         // position accuracy multiplier
-        globPosMult: 2,
+        covarianceMult: 10, // GNSS uncertainty multiplier
+        mapZoom: 18,
+        maxPointsDraw: 1000, // map threshold
         globThin: 10,
+        newGlobThin: 10,
         batchT: 1, // in sec.
         batchSize: 10, // initial animation batch size
-        globTimeoutMs: 500,
+        newBatchSize: 10,
+        globTimeoutMs: 250,
         stopFlag: false,
-        maxMapPoints: 1000, // map threshold; not used yet
+        rangeChanged: false,
+        drawAll: true,
 
         // buttons 
         playBtn: document.getElementById("play"),
@@ -70,9 +75,9 @@ let freqValues = [1,2,5,10,20,50,100];
 let maxFreq = 100;
 GLOBS.range.oninput = function(e) {
     GLOBS.rangeVal.innerHTML = `${freqValues[GLOBS.range.value]} Hz`;
-    GLOBS.globThin = Math.floor(maxFreq / freqValues[GLOBS.range.value]);
-    GLOBS.batchSize = Math.max(2, Math.floor(GLOBS.batchT / (1/freqValues[GLOBS.range.value])));
-    GLOBS.fileInput.value = "";
+    GLOBS.newGlobThin = Math.floor(maxFreq / freqValues[GLOBS.range.value]);
+    GLOBS.newBatchSize = Math.max(2, Math.floor(GLOBS.batchT / (1/freqValues[GLOBS.range.value])));
+    GLOBS.fileInput.value = ""; // to be able to reopen the file
 };
 
 GLOBS.resetZoom.onclick = function(e) {
@@ -111,21 +116,14 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 
 /*-------------------------------------------- Graphs -----------------------------------------------*/
 
-// read file callback
-const readSw = new Stopwatch();
 GLOBS.fileInput.onchange = function(e) {
     if (GLOBS.fileInput.value) {
         // Rename button or text later ?
         // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
-
-        switchCoverSpin(true);
-        readSw.start();
-        GLOBS.fileProcessor.loadFile();
-        readSw.stop();
-
-        setTimeout(() => switchCoverSpin(false), 
-                   readSw.duration <= 1.0 ? 1000 : 10);
-        readSw.reset();
+        GLOBS.drawAll = true;
+        GLOBS.globThin = GLOBS.newGlobThin;
+        GLOBS.batchSize = GLOBS.newBatchSize;
+        loadDataFile();
     } 
 };
 

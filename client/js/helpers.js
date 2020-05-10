@@ -22,9 +22,11 @@ class processDataFile {
             if (e.target.readyState == FileReader.DONE) {
                 this.clearDrawing();
                 this.initVars(true);
-                this.startdraw();
-                this.iterDraw();
-                this.drawLastCone();
+                if (GLOBS.drawAll) {
+                    this.startdraw();
+                    this.iterDraw();
+                    this.drawLastCone();
+                }
             }
         };
         this.reader.readAsBinaryString(GLOBS.fileInput.files[0]);
@@ -66,7 +68,7 @@ class processDataFile {
         GLOBS.numsatChart.addData(tsSlice, this.parsedCsv.numsatArr.slice(this.i, this.wEnd));
         GLOBS.prChart.addData(tsSlice, this.parsedCsv.pArr.slice(this.i, this.wEnd), 0);
         GLOBS.prChart.addData([], this.parsedCsv.rArr.slice(this.i, this.wEnd), 1);
-        drawMapPolyline(this.parsedCsv, this.i, this.wEnd);
+        drawMapPolyline(this.parsedCsv, this.i, this.wEnd, this.maxId);
         this.i = this.wEnd;
         if (this.i == this.maxId) {
             GLOBS.drawingFinished.flag = true;
@@ -192,59 +194,63 @@ function drawPolyLine(arr, clon, clat) {
     // draw polyline
     GLOBS.graphicsLayer.add(polylineGraphic);
     GLOBS.sceneView.center = [clon, clat];
-    GLOBS.sceneView.zoom = 17;
+    GLOBS.sceneView.zoom = GLOBS.mapZoom;
 }
 
-// function drawMapPolyline(arr) {
-//     let maxPointsDraw = 2000;
-//     let clon = 0;
-//     let clat = 0;
-//     let i = 0;
-//     let counter = 0;
-//     let thin = 1;
-//     let len = arr.longLatArr.length;
-//     if ( len > maxPointsDraw ) {
-//         thin = Math.ceil(len / maxPointsDraw);
-//     }
-//     let newArr = [];
-//     // calculate new scene center and 
-//     // draw pos_accuracy
-//     arr.longLatArr.forEach( a => {
-//         if ( !(i % thin) | (i == (len - 1)) ) {
-//             clon += a[0];
-//             clat += a[1];
-//             newArr.push(a);
-//             drawPosAcc(a[0], a[1], 
-//                        arr.posAccArr[i], mult=globPosMult);
-//             counter++;
-//         }
-//         i++;
-//     });
-//     clon /= counter;
-//     clat /= counter;
+function drawPosPolyLine(arr, acc) {
+    let polyline = {
+        type: "polyline",
+        paths: arr
+    };
 
-//     drawCone(newArr[0][0], newArr[0][1], false);
-//     drawCone(newArr[newArr.length - 1][0], newArr[newArr.length - 1][1], true);
+    acc = Math.max(1, acc);
+    let lineSymbol = {
+        type: "simple-line",
+        color: [150, 50, 50, 0.2], // rgba; orange
+        width: Math.max(2, Math.floor(GLOBS.covarianceMult * acc))
+    };
 
-//     drawPolyLine(newArr, clon, clat);
-// }
+    let polylineGraphic = new GLOBS.Graphic({
+        geometry: polyline,
+        symbol: lineSymbol
+    });
 
-function drawMapPolyline(arr, start, end) {
-    end = Math.min(arr.longLatArr.length, end);
+    // draw polyline
+    GLOBS.graphicsLayer.add(polylineGraphic);
+}
+
+function drawMapPolyline(arr, start, end, maxId) {
+    end = Math.min(maxId, end);
     if (start == end) {start -= 1;}
+    let maxPointsDraw = GLOBS.maxPointsDraw;
+    if (end < maxId) {
+        maxPointsDraw = 10;
+    }
+    let counter = 0;
     let clon = 0;
     let clat = 0;
     let len = end - start;
+    let newArr = [], posArr = [];
+    let thin = 0;
+    if ( len > maxPointsDraw )
+        thin = Math.ceil(len / maxPointsDraw);
     for (let i=start; i < end; i++) {
-        clon += arr.longLatArr[i][0];
-        clat += arr.longLatArr[i][1];
-        drawPosAcc(arr.longLatArr[i][0], arr.longLatArr[i][1], 
-                   arr.posAccArr[i], GLOBS.globPosMult);
+        if ( !((len-i) % thin) | (i == (end-1)) | (i == start) ) {
+            clon += arr.longLatArr[i][0];
+            clat += arr.longLatArr[i][1];
+            newArr.push(arr.longLatArr[i]);
+            posArr.push(arr.posAccArr[i]);
+            counter++;
+        }
     }
-    clon /= len;
-    clat /= len;
+    clon /= counter;
+    clat /= counter;
 
-    drawPolyLine(arr.longLatArr.slice(start, end), clon, clat);
+    for (let i=1; i < newArr.length; i++) {
+        drawPosPolyLine(newArr.slice(i-1, i+1), posArr[i]);
+    }
+
+    drawPolyLine(newArr, clon, clat);
 }
 
 function drawCone(lon, lat, finish=false) {
@@ -535,4 +541,16 @@ function playerEnableBtns() {
     changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
     changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
     GLOBS.range.disabled = false;
+}
+
+function loadDataFile() {
+    const readSw = new Stopwatch();
+    switchCoverSpin(true);
+    readSw.start();
+    GLOBS.fileProcessor.loadFile();
+    readSw.stop();
+
+    setTimeout(() => switchCoverSpin(false), 
+            readSw.duration <= 1.0 ? 1000 : 10);
+    readSw.reset();
 }
