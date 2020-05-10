@@ -9,11 +9,11 @@ class processDataFile {
     initVars(deep=true) {
         if (deep) {
             this.parsedCsv = undefined;
-            this.maxId = 1;
+            this.maxId = null;
         }
+        this.batchSize = null;
         this.i = 0;
-        this.stop = false;
-        this.wEnd = this.batchSize;
+        this.wEnd = null;
         return true;
     };
 
@@ -22,7 +22,9 @@ class processDataFile {
             if (e.target.readyState == FileReader.DONE) {
                 this.clearDrawing();
                 this.initVars(true);
-                this.draw();
+                this.startdraw();
+                this.iterDraw();
+                this.drawLastCone();
             }
         };
         this.reader.readAsBinaryString(GLOBS.fileInput.files[0]);
@@ -39,57 +41,80 @@ class processDataFile {
         return true;
     };
 
-    draw() {
+    startdraw() {
         if (!this.parsedCsv) {
             let measurements = this.reader.result.split("\n");
             this.parsedCsv = parseCsv(measurements);
             GLOBS.prChart.drawPr([this.parsedCsv.ts[0]], [this.parsedCsv.pArr[0]], [this.parsedCsv.rArr[0]]);
-            this.maxId = this.parsedCsv.ts.length;
         }
 
-        this.batchSize = this.batchSize ? this.batchSize : this.maxId; // global variable mutation
+        this.maxId = this.parsedCsv.ts.length;
+        this.batchSize = this.batchSize ? this.batchSize : this.maxId;
         this.wEnd = this.batchSize;
         drawCone(this.parsedCsv.longLatArr[0][0], this.parsedCsv.longLatArr[0][1], false);
-        try {
-            this.batchDraw();
-        } catch {
-            return false;
-        }
         return true;
     };
 
+    iterDraw() {
+        this.batchSize = this.batchSize ? this.batchSize : this.maxId;
+        this.wEnd = Math.min(this.i+this.batchSize, this.maxId);
+        let tsSlice = this.parsedCsv.ts.slice(this.i, this.wEnd);
+        GLOBS.altChart.addData(tsSlice, this.parsedCsv.altArr.slice(this.i, this.wEnd));
+        GLOBS.yawChart.addData(tsSlice, this.parsedCsv.yArr.slice(this.i, this.wEnd));
+        GLOBS.posChart.addData(tsSlice, this.parsedCsv.posAccArr.slice(this.i, this.wEnd));
+        GLOBS.velChart.addData(tsSlice, this.parsedCsv.velAccArr.slice(this.i, this.wEnd));
+        GLOBS.numsatChart.addData(tsSlice, this.parsedCsv.numsatArr.slice(this.i, this.wEnd));
+        GLOBS.prChart.addData(tsSlice, this.parsedCsv.pArr.slice(this.i, this.wEnd), 0);
+        GLOBS.prChart.addData([], this.parsedCsv.rArr.slice(this.i, this.wEnd), 1);
+        drawMapPolyline(this.parsedCsv, this.i, this.wEnd);
+        this.i = this.wEnd;
+        if (this.i == this.maxId) {
+            GLOBS.drawingFinished.flag = true;
+        }
+    }
+
     batchDraw() {
-        let tsSlice = [];
         while (this.i < this.maxId) {
-            if (this.stop) {
+            if (GLOBS.stopFlag) {
                 throw "ExceptionStopped";
             }
-            this.wEnd = Math.min(this.i+this.batchSize, this.maxId);
-            tsSlice = this.parsedCsv.ts.slice(this.i, this.wEnd);
-            GLOBS.altChart.addData(tsSlice, this.parsedCsv.altArr.slice(this.i, this.wEnd));
-            GLOBS.yawChart.addData(tsSlice, this.parsedCsv.yArr.slice(this.i, this.wEnd));
-            GLOBS.posChart.addData(tsSlice, this.parsedCsv.posAccArr.slice(this.i, this.wEnd));
-            GLOBS.velChart.addData(tsSlice, this.parsedCsv.velAccArr.slice(this.i, this.wEnd));
-            GLOBS.numsatChart.addData(tsSlice, this.parsedCsv.numsatArr.slice(this.i, this.wEnd));
-            GLOBS.prChart.addData(tsSlice, this.parsedCsv.pArr.slice(this.i, this.wEnd), 0);
-            GLOBS.prChart.addData([], this.parsedCsv.rArr.slice(this.i, this.wEnd), 1);
-            drawMapPolyline(this.parsedCsv, this.i, this.wEnd);
-            this.i = this.wEnd;
-            // 
-            pause(GLOBS.globTimeoutMs);
-            console.log("In a loop");
+            this.iterDraw();
         }
         drawCone(this.parsedCsv.longLatArr[this.wEnd-1][0], 
                  this.parsedCsv.longLatArr[this.wEnd-1][1], true);
         return true;
     };
+
+    drawLastCone() {
+        drawCone(this.parsedCsv.longLatArr[this.wEnd-1][0], 
+                 this.parsedCsv.longLatArr[this.wEnd-1][1], true);
+    }
 };
 
-function pause(milliseconds) {
-	var dt = new Date();
-	while ((new Date()) - dt <= milliseconds) {
-        // ...
+function drawPause(classInstance) {
+    let t0 = null;
+    let progress = null;
+    let drawFrameFlag = false;
+
+    function makeFrame() {
+        if (classInstance.i < classInstance.maxId) {
+            if (!t0) {
+                t0 = new Date();
+            }
+            progress = (new Date()) - t0;
+            if (!drawFrameFlag) {
+                classInstance.batchSize = GLOBS.batchSize;
+                classInstance.iterDraw();
+                drawFrameFlag = true;
+            }
+            if (progress >= GLOBS.globTimeoutMs) {
+                t0 = null;
+                drawFrameFlag = false;
+            } 
+            GLOBS.requestid = window.requestAnimationFrame(makeFrame);
+        }
     }
+    return window.requestAnimationFrame(makeFrame);
 }
 
 function roundToPrecision(x, precision) {
@@ -204,14 +229,13 @@ function drawPolyLine(arr, clon, clat) {
 //     drawPolyLine(newArr, clon, clat);
 // }
 
-function drawMapPolyline(arr, start=0, end=-1) {
-    if (end < 0) {
-        end = arr.longLatArr.length;
-    }
+function drawMapPolyline(arr, start, end) {
+    end = Math.min(arr.longLatArr.length, end);
+    if (start == end) {start -= 1;}
     let clon = 0;
     let clat = 0;
     let len = end - start;
-    for (let i=0; i < len; i++) {
+    for (let i=start; i < end; i++) {
         clon += arr.longLatArr[i][0];
         clat += arr.longLatArr[i][1];
         drawPosAcc(arr.longLatArr[i][0], arr.longLatArr[i][1], 
@@ -220,7 +244,7 @@ function drawMapPolyline(arr, start=0, end=-1) {
     clon /= len;
     clat /= len;
 
-    drawPolyLine(arr.longLatArr, clon, clat);
+    drawPolyLine(arr.longLatArr.slice(start, end), clon, clat);
 }
 
 function drawCone(lon, lat, finish=false) {
@@ -489,4 +513,26 @@ function changeBtnStatus(btn, name, disabled=true, color=`#888`, hoverColor=`#88
     btn.style.setProperty(name, color);
     btn.style.setProperty(name + "Hover", hoverColor);
     btn.disabled = disabled;
+}
+
+function stopAnimation() {
+    if (GLOBS.requestid) {
+        window.cancelAnimationFrame(GLOBS.requestid);
+    }
+}
+
+function playerDisableBtns() {
+    changeBtnStatus(GLOBS.slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(GLOBS.slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
+    GLOBS.range.disabled = true;
+}
+
+function playerEnableBtns() {
+    changeBtnStatus(GLOBS.slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
+    changeBtnStatus(GLOBS.slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
+    changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+    changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
+    GLOBS.range.disabled = false;
 }

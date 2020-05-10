@@ -9,7 +9,6 @@ If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) d
 
 ### To do:  
  - "fuse" play and pause buttons;   
- - make simple offline playback;  
  - make covariance with transparent polygons;  
  - build server on C++ (use web-sockets --> boost.beast);  
  - charts.js --> D3.js (?);  
