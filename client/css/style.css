@@ -82,14 +82,14 @@ html, body {
                     --playColorHover: #bbbbbb;
                     background-color: var(--playColor);
                     border: 1px solid #000;
-                    border-radius: 20%;
+                    border-radius: 10%;
                     cursor: pointer;
                 }
                     .button-img {
                         display: block;
                         margin-left: auto;
                         margin-right: auto;
-                        width: 60%;
+                        width: 50%;
                     }
 
                 .player-buttons:hover { 
