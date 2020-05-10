@@ -1,4 +1,4 @@
 package.json
 /node_modules
-/data
+/data/*
 !/data/sample.csv
