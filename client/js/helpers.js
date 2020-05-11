@@ -540,15 +540,3 @@ function playerEnableBtns() {
     changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
     GLOBS.range.disabled = false;
 }
-
-function loadDataFile() {
-    const readSw = new Stopwatch();
-    switchCoverSpin(true);
-    readSw.start();
-    GLOBS.fileProcessor.loadFile();
-    readSw.stop();
-
-    setTimeout(() => switchCoverSpin(false), 
-            readSw.duration <= 1.0 ? 1000 : 10);
-    readSw.reset();
-}
