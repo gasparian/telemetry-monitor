@@ -13,7 +13,6 @@ let GLOBS = (function() {
         globTimeoutMs: 250,
         stopFlag: false,
         rangeChanged: false,
-        drawAll: true,
 
         // buttons 
         playBtn: document.getElementById("play"),
@@ -120,7 +119,6 @@ GLOBS.fileInput.onchange = function(e) {
     if (GLOBS.fileInput.value) {
         // Rename button or text later ?
         // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
-        GLOBS.drawAll = true;
         GLOBS.globThin = GLOBS.newGlobThin;
         GLOBS.batchSize = GLOBS.newBatchSize;
         loadDataFile();
