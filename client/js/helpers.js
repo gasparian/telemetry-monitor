@@ -22,11 +22,9 @@ class processDataFile {
             if (e.target.readyState == FileReader.DONE) {
                 this.clearDrawing();
                 this.initVars(true);
-                if (GLOBS.drawAll) {
-                    this.startdraw();
-                    this.iterDraw();
-                    this.drawLastCone();
-                }
+                this.startdraw();
+                this.iterDraw();
+                this.drawLastCone();
             }
         };
         this.reader.readAsBinaryString(GLOBS.fileInput.files[0]);
