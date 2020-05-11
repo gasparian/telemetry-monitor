@@ -115,13 +115,21 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 
 /*-------------------------------------------- Graphs -----------------------------------------------*/
 
+const readSw = new Stopwatch();
 GLOBS.fileInput.onchange = function(e) {
     if (GLOBS.fileInput.value) {
         // Rename button or text later ?
         // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
         GLOBS.globThin = GLOBS.newGlobThin;
         GLOBS.batchSize = GLOBS.newBatchSize;
-        loadDataFile();
+        switchCoverSpin(true);
+        readSw.start();
+        GLOBS.fileProcessor.loadFile();
+        readSw.stop();
+    
+        setTimeout(() => switchCoverSpin(false), 
+                readSw.duration <= 1.0 ? 1000 : 10);
+        readSw.reset();
     } 
 };
 
