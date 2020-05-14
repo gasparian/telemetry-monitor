@@ -1,52 +1,59 @@
+import myChart from "./charts_draw.js";
+import processDataFile from "./file_processor.js";
+import { Stopwatch } from "./misc.js";
+import { drawPause, switchCoverSpin, changeBtnStatus, 
+         stopAnimation, switchPlayerBtns, switchInputBtnStatus} from "./animation.js";
+
 /*---------------------------------------------------------------------------------------------------*/
-let GLOBS = (function() {
-    return {
+// DIRTY: assign all window.myGlobs to window object
+window.myGlobs = {
         // position accuracy multiplier
-        covarianceMult: 10, // GNSS uncertainty multiplier
-        mapZoom: 18,
-        maxPointsDraw: 1000, // map threshold
-        globThin: 10,
-        newGlobThin: 10,
-        batchT: 1, // in sec.
-        batchSize: 10, // initial animation batch size
-        newBatchSize: 10,
-        globTimeoutMs: 250,
-        stopFlag: false,
-        rangeChanged: false,
+        vars: {
+            covarianceMult: 10, // GNSS uncertainty multiplier
+            mapZoom: 18, 
+            maxPointsDraw: 1000, // map threshold
+            globThin: 10,
+            newGlobThin: 10,
+            batchT: 1, // in sec.
+            batchSize: 10, // initial animation batch size
+            newBatchSize: 10,
+            globTimeoutMs: 250,
+            stopFlag: false,
+            rangeChanged: false,
+        },
 
-        // buttons 
-        playBtn: document.getElementById("play"),
-        stopBtn: document.getElementById("stop"),
-        serverBtn: document.getElementById("server-start-button"),
-        slider: document.querySelector('input[name=range-input]'),
-
-        // file upload
-        fileInput: document.getElementById("inp-file"),
-        fileInputBtn: document.getElementById("inp-file-button"),
-
-        fileProcessor: new processDataFile(),
+        buttons: {
+            playBtn: document.getElementById("play"),
+            stopBtn: document.getElementById("stop"),
+            serverBtn: document.getElementById("server-start-button"),
+            slider: document.querySelector('input[name=range-input]'),
+            range: document.getElementById("range-freq"),
+            resetZoom: document.getElementById("zoom-reset"),
+            fileInputBtn: document.getElementById("inp-file-button")
+        },
 
         rangeVal: document.getElementById("range-output"),
-        range: document.getElementById("range-freq"),
+        // file upload
+        fileInput: document.getElementById("inp-file"),
 
-        // Init graphs
-        altChart: new myChart(ylabel="Alt, m", chartName='alt-chart', title="Altitude"),
-        prChart: new myChart(ylabel="Angle, rad.", chartName='pr-chart', title="Pitch/Roll"),
-        yawChart: new myChart(ylabel="Angle, rad.", chartName='yaw-chart', title="Yaw"),
-        posChart: new myChart(ylabel="Pos., m", chartName='pos-chart', title="pos_accuracy"),
-        velChart: new myChart(ylabel="V, m/s", chartName='vel-chart', title="vel_accuracy"),
-        numsatChart: new myChart(ylabel="#", chartName='numsat-chart', title="num_satelites"),
+        charts: {
+            altChart: new myChart("Alt, m", 'alt-chart', "Altitude"),
+            prChart: new myChart("Angle, rad.", 'pr-chart', "Pitch/Roll"),
+            yawChart: new myChart("Angle, rad.", 'yaw-chart', "Yaw"),
+            posChart: new myChart("Pos., m", 'pos-chart', "pos_accuracy"),
+            velChart: new myChart("V, m/s", 'vel-chart', "vel_accuracy"),
+            numsatChart: new myChart("#", 'numsat-chart', "num_satelites")
+        },
 
-        resetZoom: document.getElementById("zoom-reset"),
-
-        // maps globals
-        currentMap: undefined,
-        mapView: undefined,
-        sceneView: undefined,
-        Graphic: undefined,
-        graphicsLayer: undefined,
-        Point: undefined,
-        multiPoint: undefined,
+        maps: {
+            currentMap: undefined,
+            mapView: undefined,
+            sceneView: undefined,
+            Graphic: undefined,
+            graphicsLayer: undefined,
+            Point: undefined,
+            multiPoint: undefined,
+        },
 
         drawingFinished: {
             valInternal: false,
@@ -62,30 +69,28 @@ let GLOBS = (function() {
               this.valListener = listener;
             }
           }
-    }
-}());
+    };
 
-GLOBS.fileInputBtn.onclick = function(e) {
-    GLOBS.fileInput.click();
+const fileProcessor = new processDataFile();
+
+window.myGlobs.buttons.fileInputBtn.onclick = function(e) {
+    window.myGlobs.fileInput.click();
 };
 
 // freq. input
 let freqValues = [1,2,5,10,20,50,100];
 let maxFreq = 100;
-GLOBS.range.oninput = function(e) {
-    GLOBS.rangeVal.innerHTML = `${freqValues[GLOBS.range.value]} Hz`;
-    GLOBS.newGlobThin = Math.floor(maxFreq / freqValues[GLOBS.range.value]);
-    GLOBS.newBatchSize = Math.max(2, Math.floor(GLOBS.batchT / (1/freqValues[GLOBS.range.value])));
-    GLOBS.fileInput.value = ""; // to be able to reopen the file
+window.myGlobs.buttons.range.oninput = function(e) {
+    window.myGlobs.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} Hz`;
+    window.myGlobs.vars.newGlobThin = Math.floor(maxFreq / freqValues[window.myGlobs.buttons.range.value]);
+    window.myGlobs.vars.newBatchSize = Math.max(2, Math.floor(window.myGlobs.vars.batchT / (1/freqValues[window.myGlobs.buttons.range.value])));
+    window.myGlobs.fileInput.value = ""; // to be able to reopen the file
 };
 
-GLOBS.resetZoom.onclick = function(e) {
-    GLOBS.altChart.chart.resetZoom();
-    GLOBS.prChart.chart.resetZoom();
-    GLOBS.yawChart.chart.resetZoom();
-    GLOBS.posChart.chart.resetZoom();
-    GLOBS.velChart.chart.resetZoom();
-    GLOBS.numsatChart.chart.resetZoom();
+window.myGlobs.buttons.resetZoom.onclick = function(e) {
+    for ( const key in window.myGlobs.charts ) {
+        window.myGlobs.charts[key].chart.resetZoom();
+    }
 };
 
 /*---------------------------------------------------------------------------------------------------*/
@@ -96,19 +101,19 @@ GLOBS.resetZoom.onclick = function(e) {
 require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic", 
          "esri/layers/GraphicsLayer", "esri/geometry/Point", "esri/geometry/Multipoint"], 
         function(Map, MapView, SceneView, GraphicClass, GraphicsLayer, PointClass, MultipointClass) {
-    GLOBS.currentMap = new Map({basemap: "streets-night-vector"});
-    GLOBS.sceneView = new SceneView({
+    window.myGlobs.maps.currentMap = new Map({basemap: "streets-night-vector"});
+    window.myGlobs.maps.sceneView = new SceneView({
         container: "map-view",
-        map: GLOBS.currentMap,
+        map: window.myGlobs.maps.currentMap,
         zoom: 12,
         center: [11.5820, 48.1351]
     });
-    GLOBS.graphicsLayer = new GraphicsLayer();
-    GLOBS.currentMap.add(GLOBS.graphicsLayer);
+    window.myGlobs.maps.graphicsLayer = new GraphicsLayer();
+    window.myGlobs.maps.currentMap.add(window.myGlobs.maps.graphicsLayer);
 
-    GLOBS.Graphic = GraphicClass;
-    GLOBS.Point = PointClass;
-    GLOBS.multiPoint = MultipointClass;
+    window.myGlobs.maps.Graphic = GraphicClass;
+    window.myGlobs.maps.Point = PointClass;
+    window.myGlobs.maps.multiPoint = MultipointClass;
 });
 
 /*-------------------------------------------- ArcGIS -----------------------------------------------*/
@@ -116,15 +121,16 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 /*-------------------------------------------- Graphs -----------------------------------------------*/
 
 const readSw = new Stopwatch();
-GLOBS.fileInput.onchange = function(e) {
-    if (GLOBS.fileInput.value) {
+window.myGlobs.fileInput.onchange = function(e) {
+    if (window.myGlobs.fileInput.value) {
         // Rename button or text later ?
         // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
-        GLOBS.globThin = GLOBS.newGlobThin;
-        GLOBS.batchSize = GLOBS.newBatchSize;
+        window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
+        window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
         switchCoverSpin(true);
         readSw.start();
-        GLOBS.fileProcessor.loadFile();
+        fileProcessor.clearDrawing();
+        fileProcessor.loadFile(window.myGlobs.fileInput.files[0]);
         readSw.stop();
     
         setTimeout(() => switchCoverSpin(false), 
@@ -137,42 +143,40 @@ GLOBS.fileInput.onchange = function(e) {
 
 /*----------------------------------------- Offline Player -------------------------------------------*/
 
-// add listener to GLOBS.drawingFinished object
-GLOBS.drawingFinished.registerListener(function(val) {
+// add listener to window.myGlobs.drawingFinished object
+window.myGlobs.drawingFinished.registerListener(function(val) {
     if (val) {
-        GLOBS.fileProcessor.drawLastCone();
-        GLOBS.fileProcessor.batchSize = null;
-        GLOBS.stopFlag = false;
+        fileProcessor.drawLastCone();
+        fileProcessor.batchSize = null;
+        window.myGlobs.stopFlag = false;
         playClicked = false;
-        playerEnableBtns();
-        changeBtnStatus(GLOBS.playBtn, "playColor", disabled=false, color=`#aaaaaa`, hoverColor=`#bbbbbb`);
+        switchPlayerBtns(false);
+        changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#aaaaaa`, `#bbbbbb`]);
         document.getElementById("play-button-img").src = "./img/play-bold.png";
     }
 });
 
 let playClicked = false;
-GLOBS.playBtn.onclick = async function(e) {
-    if (GLOBS.fileProcessor.parsedCsv) {
-        changeBtnStatus(GLOBS.playBtn, "playColor", disabled=false, color=`#bbbbbb`, hoverColor=`#bbbbbb`);
+window.myGlobs.buttons.playBtn.onclick = async function(e) {
+    if (fileProcessor.parsedCsv) {
+        changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#bbbbbb`, `#bbbbbb`]);
         if (!playClicked) {
             playClicked = true;
             document.getElementById("play-button-img").src = "./img/pause-bold.png";
-            playerDisableBtns();
-            GLOBS.fileProcessor.batchSize = GLOBS.batchSize;
-            if (!GLOBS.stopFlag) {
-                GLOBS.fileProcessor.clearDrawing();
-                GLOBS.fileProcessor.initVars(false);
-                GLOBS.fileProcessor.startdraw();
-                GLOBS.drawingFinished.flag = false;
-                drawPause(GLOBS.fileProcessor);
-            } else {
-                drawPause(GLOBS.fileProcessor);
+            switchPlayerBtns(true);
+            fileProcessor.batchSize = window.myGlobs.batchSize;
+            if (!window.myGlobs.vars.stopFlag) {
+                fileProcessor.clearDrawing();
+                fileProcessor.initVars(false);
+                fileProcessor.startdraw();
+                window.myGlobs.drawingFinished.flag = false;
             }
+            drawPause(fileProcessor, window.myGlobs.vars);
         } else {
             playClicked = false;
             document.getElementById("play-button-img").src = "./img/play-bold.png";
-            if (!GLOBS.drawingFinished.flag) {
-                GLOBS.stopFlag = true;
+            if (!window.myGlobs.drawingFinished.flag) {
+                window.myGlobs.vars.stopFlag = true;
                 stopAnimation();
             }
         }
@@ -180,17 +184,17 @@ GLOBS.playBtn.onclick = async function(e) {
 };
 
 const stopSw = new Stopwatch();
-GLOBS.stopBtn.onclick = function(e) {
-    if (GLOBS.fileProcessor.parsedCsv) {
-        playerEnableBtns();
-        if (!GLOBS.drawingFinished.flag) {
+window.myGlobs.buttons.stopBtn.onclick = function(e) {
+    if (fileProcessor.parsedCsv) {
+        switchPlayerBtns(false);
+        if (!window.myGlobs.drawingFinished.flag) {
             switchCoverSpin(true);
             stopSw.start();
             stopAnimation();
-            GLOBS.fileProcessor.batchSize = null;
-            GLOBS.fileProcessor.iterDraw();
+            fileProcessor.batchSize = null;
+            fileProcessor.iterDraw();
             stopSw.stop();
-            GLOBS.stopFlag = false;
+            window.myGlobs.vars.stopFlag = false;
             setTimeout(() => switchCoverSpin(false), 
                     stopSw.duration <= 1.0 ? 1000 : 10);
             stopSw.reset();
@@ -204,26 +208,12 @@ GLOBS.stopBtn.onclick = function(e) {
 /*-------------------------------------- Server Communication ----------------------------------------*/
 
 let serverBtnState = false;
-GLOBS.serverBtn.onclick = function(e) {
+window.myGlobs.buttons.serverBtn.onclick = function(e) {
     serverBtnState = serverBtnState ? false : true;
     if (serverBtnState) {
-        changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=true, color=`#888`, hoverColor=`#888`);
-        changeBtnStatus(GLOBS.slider, "sliderColor", disabled=true, color=`#888`, hoverColor=`#888`);
-        changeBtnStatus(GLOBS.slider, "trackColor", disabled=true, color=`#888`, hoverColor=`#888`);
-        GLOBS.playBtn.disabled = true;
-        GLOBS.stopBtn.disabled = true;
-        GLOBS.range.disabled = true;
-        changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#fc3503`, hoverColor=`#fc3503`);
-        GLOBS.serverBtn.innerHTML = "Close";
+        switchInputBtnStatus(true);
     } else {
-        changeBtnStatus(GLOBS.fileInputBtn, "inpBtnColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
-        changeBtnStatus(GLOBS.slider, "sliderColor", disabled=false, color=`#f1f1f1`, hoverColor=`#f1f1f1`);
-        changeBtnStatus(GLOBS.slider, "trackColor", disabled=false, color=`#639fff`, hoverColor=`#639fff`);
-        GLOBS.playBtn.disabled = false;
-        GLOBS.stopBtn.disabled = false;
-        GLOBS.range.disabled = false;
-        changeBtnStatus(GLOBS.serverBtn, "sendColor", disabled=false, color=`#009578`, hoverColor=`#00b28f`);
-        GLOBS.serverBtn.innerHTML = "Open";
+        switchInputBtnStatus(false);
     }
 }
 
