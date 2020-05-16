@@ -194,12 +194,13 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
             fileProcessor.batchSize = null;
             fileProcessor.iterDraw();
             stopSw.stop();
-            window.myGlobs.vars.stopFlag = false;
             setTimeout(() => switchCoverSpin(false), 
                     stopSw.duration <= 1.0 ? 1000 : 10);
             stopSw.reset();
-            playClicked = false;
         }
+        window.myGlobs.vars.stopFlag = false;
+        playClicked = false;
+        document.getElementById("play-button-img").src = "./img/play-bold.png";
     }
 };
 
