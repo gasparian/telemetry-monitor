@@ -25,12 +25,19 @@ If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) d
  For local tests:  
  - nodemon: `npm i -g nodemon`;  
 
-### Running  
+### Running client  
 
 Server with auto-reloading:  
 ```
 nodemon app.js
 ```  
+
+### Running demo-server  
+
+Make a build directory: `mkdir build && cd build`  
+Compile: `cmake .. && make`  
+Run it: `./websocket-server-sync 0.0.0.0 8080`  
+
 
 ### Kitti data format specs  
 ```

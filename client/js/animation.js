@@ -79,5 +79,5 @@ export function switchInputBtnStatus(status=true) {
     window.myGlobs.buttons.playBtn.disabled = status;
     window.myGlobs.buttons.stopBtn.disabled = status;
     window.myGlobs.buttons.range.disabled = status;
-    window.myGlobs.buttons.serverBtn.innerHTML = "Close" ? status : "Open";
+    window.myGlobs.buttons.serverBtn.innerHTML = status ? "Close" : "Open";
 }

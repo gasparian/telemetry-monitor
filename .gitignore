@@ -2,3 +2,5 @@ package.json
 /node_modules
 /data/*
 !/data/sample.csv
+/embedded_server_proto/build/
+.vscode
