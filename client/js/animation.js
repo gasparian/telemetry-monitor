@@ -75,7 +75,7 @@ export function switchInputBtnStatus(status=true) {
     changeBtnStatus(window.myGlobs.buttons.fileInputBtn, "inpBtnColor", status, fileInputBtnColors);
     changeBtnStatus(window.myGlobs.buttons.slider, "sliderColor", status, sliderColors);
     changeBtnStatus(window.myGlobs.buttons.slider, "trackColor", status, sliderTrackColors);
-    changeBtnStatus(window.myGlobs.buttons.serverBtn, "sendColor", status ? false : true, serverBtnColors);
+    changeBtnStatus(window.myGlobs.buttons.serverBtn, "sendColor", false, serverBtnColors);
     window.myGlobs.buttons.playBtn.disabled = status;
     window.myGlobs.buttons.stopBtn.disabled = status;
     window.myGlobs.buttons.range.disabled = status;
