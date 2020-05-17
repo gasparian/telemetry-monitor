@@ -1,17 +1,9 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+project(embeddedServerDemo)
 
-add_definitions(-std=c++11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -Wall")
+find_package(Boost 1.66 REQUIRED COMPONENTS system)
+include_directories(${Boost_INCLUDE_DIRS})
 
-set(CXX_FLAGS "-Wall")
-
-set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
-
-add_library(boost_beast INTERFACE)
-
-target_include_directories(boost_beast 
-                           SYSTEM
-                           INTERFACE
-                           "${CMAKE_CURRENT_LIST_DIR}/beast")
-
-add_executable (websocket-server-sync src/websocket_server.cpp)
-target_link_libraries (websocket-server-sync boost_beast)
+add_executable(websocket-server-sync src/websocket_server.cpp)
+target_link_libraries(websocket-server-sync ${Boost_LIBRARIES})

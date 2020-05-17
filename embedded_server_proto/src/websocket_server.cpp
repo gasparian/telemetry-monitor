@@ -16,14 +16,13 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/system_error.hpp>
 #include <cstdlib>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <thread>
 
-using tcp = boost::asio::ip::tcp;               // from "../asio/ip/tcp.hpp"
+using tcp = boost::asio::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
 namespace websocket = boost::beast::websocket;  // from <boost/beast/websocket.hpp>
 
 //------------------------------------------------------------------------------
@@ -53,7 +52,7 @@ do_session(tcp::socket& socket)
             ws.write(buffer.data());
         }
     }
-    catch(asio::system_error const& se)
+    catch(boost::system::system_error const& se)
     {
         // This indicates that the session was closed
         if(se.code() != websocket::error::closed)
