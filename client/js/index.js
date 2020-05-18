@@ -213,6 +213,11 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
 
 /*-------------------------------------- Server Communication ----------------------------------------*/
 
+function updateTextArea(text) {
+    window.myGlobs.io.serverLogOutput.value += text + "\n";
+    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+}
+
 let serverBtnState = false;
 window.myGlobs.buttons.serverBtn.onclick = function(e) {
     let addressVal = window.myGlobs.io.serverAdressInput.value;
@@ -223,19 +228,17 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                 window.myGlobs.io.ws = new WebSocket(`ws://${addressVal}`);
 
                 window.myGlobs.io.ws.addEventListener("open", function(e) {
-                    window.myGlobs.io.serverLogOutput.value += "Connection opened!\n";
-                    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+                    updateTextArea("Connection opened!");
                 });
                 
                 window.myGlobs.io.ws.addEventListener("close", function(e) {
-                    window.myGlobs.io.serverLogOutput.value += "Connection closed!";
-                    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+                    updateTextArea("Connection closed!");
+                    switchInputBtnStatus(false);
                 });
                 
                 window.myGlobs.io.ws.addEventListener("message", function(e) {
                     const inMessage = e.data.toString();
-                    window.myGlobs.io.serverLogOutput.value += inMessage + "\n";
-                    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+                    updateTextArea(inMessage);
                 });
             }
             switchInputBtnStatus(true);
