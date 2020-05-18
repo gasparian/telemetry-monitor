@@ -32,9 +32,14 @@ window.myGlobs = {
             fileInputBtn: document.getElementById("inp-file-button")
         },
 
-        rangeVal: document.getElementById("range-output"),
-        // file upload
-        fileInput: document.getElementById("inp-file"),
+        io: {
+            rangeVal: document.getElementById("range-output"),
+            fileInput: document.getElementById("inp-file"), // file upload
+            serverAdressInput: document.getElementById("server-address-inp"),
+            serverMessageInput: document.getElementById("server-command-inp"),
+            serverLogOutput: document.getElementById("log"),
+            ws: {},
+        },
 
         charts: {
             altChart: new myChart("Alt, m", 'alt-chart', "Altitude"),
@@ -74,17 +79,17 @@ window.myGlobs = {
 const fileProcessor = new processDataFile();
 
 window.myGlobs.buttons.fileInputBtn.onclick = function(e) {
-    window.myGlobs.fileInput.click();
+    window.myGlobs.io.fileInput.click();
 };
 
 // freq. input
 let freqValues = [1,2,5,10,20,50,100];
 let maxFreq = 100;
 window.myGlobs.buttons.range.oninput = function(e) {
-    window.myGlobs.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} Hz`;
+    window.myGlobs.io.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} Hz`;
     window.myGlobs.vars.newGlobThin = Math.floor(maxFreq / freqValues[window.myGlobs.buttons.range.value]);
     window.myGlobs.vars.newBatchSize = Math.max(2, Math.floor(window.myGlobs.vars.batchT / (1/freqValues[window.myGlobs.buttons.range.value])));
-    window.myGlobs.fileInput.value = ""; // to be able to reopen the file
+    window.myGlobs.io.fileInput.value = ""; // to be able to reopen the file
 };
 
 window.myGlobs.buttons.resetZoom.onclick = function(e) {
@@ -121,8 +126,8 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 /*-------------------------------------------- Graphs -----------------------------------------------*/
 
 const readSw = new Stopwatch();
-window.myGlobs.fileInput.onchange = function(e) {
-    if (window.myGlobs.fileInput.value) {
+window.myGlobs.io.fileInput.onchange = function(e) {
+    if (window.myGlobs.io.fileInput.value) {
         // Rename button or text later ?
         // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
         window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
@@ -130,7 +135,7 @@ window.myGlobs.fileInput.onchange = function(e) {
         switchCoverSpin(true);
         readSw.start();
         fileProcessor.clearDrawing();
-        fileProcessor.loadFile(window.myGlobs.fileInput.files[0]);
+        fileProcessor.loadFile(window.myGlobs.io.fileInput.files[0]);
         readSw.stop();
     
         setTimeout(() => switchCoverSpin(false), 
@@ -210,25 +215,52 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
 
 let serverBtnState = false;
 window.myGlobs.buttons.serverBtn.onclick = function(e) {
-    serverBtnState = serverBtnState ? false : true;
-    if (serverBtnState) {
-        switchInputBtnStatus(true);
-    } else {
-        switchInputBtnStatus(false);
+    let addressVal = window.myGlobs.io.serverAdressInput.value;
+    if (addressVal) {
+        serverBtnState = serverBtnState ? false : true;
+        if (serverBtnState) {
+            if (!window.myGlobs.io.ws.OPEN) {
+                window.myGlobs.io.ws = new WebSocket(`ws://${addressVal}`);
+
+                window.myGlobs.io.ws.addEventListener("open", function(e) {
+                    window.myGlobs.io.serverLogOutput.value += "Connection opened!\n";
+                    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+                });
+                
+                window.myGlobs.io.ws.addEventListener("close", function(e) {
+                    window.myGlobs.io.serverLogOutput.value += "Connection closed!";
+                    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+                });
+                
+                window.myGlobs.io.ws.addEventListener("message", function(e) {
+                    const inMessage = e.data.toString();
+                    window.myGlobs.io.serverLogOutput.value += inMessage + "\n";
+                    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+                });
+            }
+            switchInputBtnStatus(true);
+        } else {
+            if (window.myGlobs.io.ws.OPEN) {
+                window.myGlobs.io.ws.close();
+                window.myGlobs.io.ws = {};
+            }
+            switchInputBtnStatus(false);
+        }
     }
 }
 
-// Use later as an example of input forms 
-// rangeVal.addEventListener("click", () => {
-//     rangeVal.value = "";
-// });
-// rangeVal.addEventListener("keyup", function(event) {
-//     event.preventDefault();
-//     if (event.keyCode === 13) {
-//         range.value = rangeVal.value;
-//         rangeVal.value = `${rangeVal.value} Hz`;
-//         updateThinFromRange();
-//     }
-// });
+window.myGlobs.io.serverMessageInput.addEventListener("click", () => {
+    window.myGlobs.io.serverMessageInput.value = "";
+});
+
+window.myGlobs.io.serverMessageInput.addEventListener("keyup", function(event) {
+    event.preventDefault();
+    if ((event.keyCode === 13) & window.myGlobs.io.ws.OPEN) {
+        let command = window.myGlobs.io.serverMessageInput.value;
+        if ((command.length > 0) & (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN)) {
+            window.myGlobs.io.ws.send(command);
+        }
+    }
+});
 
 /*-------------------------------------- Server Communication ----------------------------------------*/
