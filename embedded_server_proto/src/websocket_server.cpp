@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
 
         // The acceptor receives incoming connections
         tcp::acceptor acceptor{ioc, {address, port}};
+
         for(;;)
         {
             // This will receive the new connection

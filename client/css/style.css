@@ -198,14 +198,16 @@ html, body {
             top: 2%;
         }
 
-            #server-log {
-                width: 94.5%;
+            #log {
+                width: 93.5%;
                 height: 100%;
-                padding-left: 2px;
-                margin-right: 4%;
                 margin-left: 1.5%;
                 background-color: #f1f1f1;
                 border-radius: 5px;
+                resize: none;
+                overflow: hidden;
+                white-space: pre;
+                overflow-wrap: normal;
             }
 
     .charts {

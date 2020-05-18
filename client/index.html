@@ -42,9 +42,9 @@
             <div id="server-command-block">
                 <div id="server-input">
                     <div id="server-input-fields">
-                        <input type="text" class="server-input-field" placeholder="Server address...">
+                        <input type="text" class="server-input-field" id="server-address-inp" placeholder="Server address..." value="0.0.0.0:8008">
 
-                        <input type="text" class="server-input-field" placeholder="Server command...">
+                        <input type="text" class="server-input-field" id="server-command-inp" placeholder="Server command...">
                     </div>
 
                     <button type="button" id="server-start-button">Open</button>
@@ -58,7 +58,7 @@
             </div>
 
             <div id="server-log-block">
-                <input type="text" id="server-log" placeholder="Server output..."/>
+                <textarea id='log' rows=50 cols=60 readonly></textarea>
             </div>
         </div>
 
