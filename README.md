@@ -11,6 +11,7 @@ If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) d
  - build server on C++ (use web-sockets --> boost.beast):  
      - add file processor for emulating device messages;  
      - add commands processor on server;  
+     - add commands reference in a readme;  
  - charts.js --> D3.js (?);  
  - work with graphs' zooming/panning;  
 
