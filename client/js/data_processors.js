@@ -41,10 +41,15 @@ export class processDataFile {
         this.reader.readAsBinaryString(file);
     };
 
+    // TO DO: change this function in order parse the `real` data <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    parseData() {
+        let measurements = this.reader.result.split("\n");
+        this.parsedData = parseCsv(measurements);
+    }
+
     startdraw() {
         if (!this.parsedData) {
-            let measurements = this.reader.result.split("\n");
-            this.parsedData = parseCsv(measurements);
+            this.parseData();
             window.myGlobs.charts.prChart.drawPr([this.parsedData.timestamp[0]], [this.parsedData.pitch[0]], [this.parsedData.roll[0]]);
         }
 
