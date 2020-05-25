@@ -95,17 +95,17 @@ export default class myChart {
                                 y: null
                             },
                             // On category scale, factor of pan velocity
-                            speed: 1000,
+                            speed: 1000, // ??
                             // Minimal pan distance required before actually applying pan
-                            threshold: 5
+                            threshold: 5 // ??
                         },
                         zoom: {
                             enabled: true,
                             // drag: {animationDuration: 500},
                             drag: false,
                             mode: 'x',
-                            speed: 1000,
-                            sensitivity: 0.00001
+                            speed: 1000, // ??
+                            sensitivity: 0.00001 // ??
                         }
                     }
                 }

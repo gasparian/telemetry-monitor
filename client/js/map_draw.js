@@ -60,10 +60,10 @@ export function drawMapPolyline(arr, start, end, maxId) {
         thin = Math.ceil(len / maxPointsDraw);
     for (let i=start; i < end; i++) {
         if ( !((len-i) % thin) | (i == (end-1)) | (i == start) ) {
-            clon += arr.longLatArr[i][0];
-            clat += arr.longLatArr[i][1];
-            newArr.push(arr.longLatArr[i]);
-            posArr.push(arr.posAccArr[i]);
+            clon += arr.lon[i];
+            clat += arr.lat[i];
+            newArr.push([arr.lon[i], arr.lat[i]]);
+            posArr.push(arr.pos_accuracy[i]);
             counter++;
         }
     }
