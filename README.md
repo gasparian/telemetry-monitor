@@ -6,6 +6,7 @@ https://gasparian.github.io/telemetry_monitor/client/
 <p align="center"> <img src="https://github.com/gasparian/telemetry_monitor/blob/master/client/img/demo-pic.png" height=500 /> </p>  
 
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
+In order to work with custom-formatted data, change implementation of `parseData()` methods in `./client/js/data_processors.js`.  
 
 ### To do:  
  - build server on C++ (use web-sockets --> boost.beast):  
