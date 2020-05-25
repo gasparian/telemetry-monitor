@@ -19,13 +19,58 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <thread>
+#include <pthread.h>
 
 using tcp = boost::asio::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
 namespace websocket = boost::beast::websocket;  // from <boost/beast/websocket.hpp>
 
 //------------------------------------------------------------------------------
+
+class File {
+public:
+    std::ifstream input_;
+    std::string str_;
+
+    File(std::string path) {
+        input_.open(path);
+        if (!input_.is_open()) {
+            std::exit(EXIT_FAILURE);
+        }
+        // keep the first row with the columns names
+    };
+
+    // void iter(websocket::stream<tcp::socket>& ws_) {
+    //     while ( std::getline(input_, str_, '\n') ) {
+    //         ws_.write(boost::asio::buffer(str_));
+    //     };
+    // };
+
+    // void startStream(websocket::stream<tcp::socket>& ws_) {
+    //     ThreadMap::const_iterator it = tm_.find("stream");
+    //     if (it == tm_.end()) { // create new thread only if not found one
+    //         std::thread thrd = std::thread(&File::iter, this, ws_);
+    //         tm_["stream"] = thrd.native_handle();
+    //         thrd.detach();
+    //         std::cout << "Thread created!" << std::endl;
+    //     }
+    // };
+
+    // void stopStream() {
+    //     ThreadMap::const_iterator it = tm_.find("stream");
+    //     if (it != tm_.end()) {
+    //         pthread_cancel(it->second);
+    //         tm_.erase("stream");
+    //         std::cout << "Thread killed!" << std::endl;
+    //     }
+    // };
+
+private:
+    typedef std::unordered_map<std::string, pthread_t> ThreadMap;
+    ThreadMap tm_;
+};
 
 // Echoes back all received WebSocket messages
 void
@@ -36,8 +81,12 @@ do_session(tcp::socket& socket)
         // Construct the stream by moving in the socket
         websocket::stream<tcp::socket> ws{std::move(socket)};
 
+        // read a `demo` file
+        File file("../../data/sample.csv");
+
         // Accept the websocket handshake
         ws.accept();
+        std::string command, output;
 
         for(;;)
         {
@@ -46,10 +95,21 @@ do_session(tcp::socket& socket)
 
             // Read a message
             ws.read(buffer);
-
-            // Echo the message back
             ws.text(ws.got_text());
-            ws.write(buffer.data());
+            command = boost::beast::buffers_to_string(buffer.data());
+
+            // check the command
+            if ( command == "start stream" ) {
+                while ( std::getline(file.input_, file.str_, '\n') ) { // quick hack
+                    ws.write(boost::asio::buffer(file.str_));
+                };
+                // file.startStream(ws);
+            } else if ( command == "stop stream" ) {
+                // file.stopStream();
+            } else {
+                // Echo the message back
+                ws.write(buffer.data());
+            }
         }
     }
     catch(boost::system::system_error const& se)

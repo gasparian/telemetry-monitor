@@ -28,3 +28,24 @@ export class Stopwatch {
         return this.dt;
     }
 }
+
+export class dataListener {
+    constructor(initVal) {
+       this.valInternal = initVal;
+    }
+
+    valListener(val) {};
+
+    registerListener(listener) {
+        this.valListener = listener;
+    };
+
+    set value(val) {
+      this.valInternal = val;
+      this.valListener(val);
+    };
+
+    get value() {
+      return this.valInternal;
+    };
+};

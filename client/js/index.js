@@ -1,6 +1,7 @@
 import myChart from "./charts_draw.js";
-import processDataFile from "./file_processor.js";
-import { Stopwatch } from "./misc.js";
+import { drawCone } from "./map_draw.js";
+import { clearDrawing, processDataFile, processStream } from "./data_processors.js";
+import { Stopwatch, dataListener } from "./misc.js";
 import { drawPause, switchCoverSpin, changeBtnStatus, 
          stopAnimation, switchPlayerBtns, switchInputBtnStatus} from "./animation.js";
 
@@ -60,23 +61,13 @@ window.myGlobs = {
             multiPoint: undefined,
         },
 
-        drawingFinished: {
-            valInternal: false,
-            valListener: function(val) {},
-            set flag(val) {
-              this.valInternal = val;
-              this.valListener(val);
-            },
-            get flag() {
-              return this.valInternal;
-            },
-            registerListener: function(listener) {
-              this.valListener = listener;
-            }
-          }
+        drawingFinished: new dataListener(false),
+        command: undefined
     };
 
-const fileProcessor = new processDataFile();
+// declare data processors
+window.myGlobs.fileProcessor = new processDataFile();
+window.myGlobs.streamProcessor = new processStream();
 
 window.myGlobs.buttons.fileInputBtn.onclick = function(e) {
     window.myGlobs.io.fileInput.click();
@@ -128,14 +119,12 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 const readSw = new Stopwatch();
 window.myGlobs.io.fileInput.onchange = function(e) {
     if (window.myGlobs.io.fileInput.value) {
-        // Rename button or text later ?
-        // fileInputText.innerHTML = fileInput.value.match(/[\/\\]([\w\d\s\.\-\(\)]+)$/)[1];
         window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
         window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
         switchCoverSpin(true);
         readSw.start();
-        fileProcessor.clearDrawing();
-        fileProcessor.loadFile(window.myGlobs.io.fileInput.files[0]);
+        clearDrawing();
+        window.myGlobs.fileProcessor.loadFile(window.myGlobs.io.fileInput.files[0]);
         readSw.stop();
     
         setTimeout(() => switchCoverSpin(false), 
@@ -151,8 +140,8 @@ window.myGlobs.io.fileInput.onchange = function(e) {
 // add listener to window.myGlobs.drawingFinished object
 window.myGlobs.drawingFinished.registerListener(function(val) {
     if (val) {
-        fileProcessor.drawLastCone();
-        fileProcessor.batchSize = null;
+        window.myGlobs.fileProcessor.drawLastCone();
+        window.myGlobs.fileProcessor.batchSize = null;
         window.myGlobs.stopFlag = false;
         playClicked = false;
         switchPlayerBtns(false);
@@ -163,26 +152,35 @@ window.myGlobs.drawingFinished.registerListener(function(val) {
 
 let playClicked = false;
 window.myGlobs.buttons.playBtn.onclick = async function(e) {
-    if (fileProcessor.parsedCsv) {
+    const wsIsOpen = (window.myGlobs.io.ws.readyState) & (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN);
+    if ( window.myGlobs.fileProcessor.parsedData || window.myGlobs.io.ws.OPEN ) {
         changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#bbbbbb`, `#bbbbbb`]);
         if (!playClicked) {
             playClicked = true;
             document.getElementById("play-button-img").src = "./img/pause-bold.png";
             switchPlayerBtns(true);
-            fileProcessor.batchSize = window.myGlobs.batchSize;
-            if (!window.myGlobs.vars.stopFlag) {
-                fileProcessor.clearDrawing();
-                fileProcessor.initVars(false);
-                fileProcessor.startdraw();
-                window.myGlobs.drawingFinished.flag = false;
+            if ( (!window.myGlobs.vars.stopFlag) & (!wsIsOpen) ) {
+                window.myGlobs.fileProcessor.batchSize = window.myGlobs.batchSize;
+                clearDrawing();
+                window.myGlobs.fileProcessor.initVars();
+                window.myGlobs.fileProcessor.startdraw();
+                window.myGlobs.drawingFinished.value = false;
+                drawPause("fileProcessor");
+            } else if ( wsIsOpen ) {
+                changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#009578`, `#00b28f`]);
+                window.myGlobs.command = "start stream";
+                window.myGlobs.io.ws.send(window.myGlobs.command);
             }
-            drawPause(fileProcessor, window.myGlobs.vars);
         } else {
             playClicked = false;
             document.getElementById("play-button-img").src = "./img/play-bold.png";
-            if (!window.myGlobs.drawingFinished.flag) {
+            if ( !window.myGlobs.drawingFinished.value ) {
                 window.myGlobs.vars.stopFlag = true;
                 stopAnimation();
+                if ( wsIsOpen ) {
+                    window.myGlobs.command = "stop stream";
+                    window.myGlobs.io.ws.send(window.myGlobs.command);
+                }
             }
         }
     }
@@ -190,14 +188,14 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
 
 const stopSw = new Stopwatch();
 window.myGlobs.buttons.stopBtn.onclick = function(e) {
-    if (fileProcessor.parsedCsv) {
+    if (window.myGlobs.fileProcessor.parsedData) {
         switchPlayerBtns(false);
-        if (!window.myGlobs.drawingFinished.flag) {
+        if (!window.myGlobs.drawingFinished.value) {
             switchCoverSpin(true);
             stopSw.start();
             stopAnimation();
-            fileProcessor.batchSize = null;
-            fileProcessor.iterDraw();
+            window.myGlobs.fileProcessor.batchSize = null;
+            window.myGlobs.fileProcessor.iterDraw();
             stopSw.stop();
             setTimeout(() => switchCoverSpin(false), 
                     stopSw.duration <= 1.0 ? 1000 : 10);
@@ -218,27 +216,63 @@ function updateTextArea(text) {
     window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
 }
 
+function onStreamClosed() {
+    if ( window.myGlobs.streamProcessor.maxId > 1 ) { 
+        // draw final points and cone if the data was sent
+        window.myGlobs.streamProcessor.parseData();
+        drawCone(window.myGlobs.streamProcessor.parsedData.lon[window.myGlobs.streamProcessor.maxId-1], 
+                 window.myGlobs.streamProcessor.parsedData.lat[window.myGlobs.streamProcessor.maxId-1], true);
+    }
+    changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#aaaaaa`, `#bbbbbb`]); // change play button color back
+    if ( playClicked ) {
+        playClicked = false;
+        document.getElementById("play-button-img").src = "./img/play-bold.png";
+    }
+}
+
 let serverBtnState = false;
+let startStreamFlag = false;
 window.myGlobs.buttons.serverBtn.onclick = function(e) {
     let addressVal = window.myGlobs.io.serverAdressInput.value;
     if (addressVal) {
         serverBtnState = serverBtnState ? false : true;
         if (serverBtnState) {
-            if (!window.myGlobs.io.ws.OPEN) {
+            if ( (!window.myGlobs.io.ws.OPEN) || (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.CLOSED) ) {
                 window.myGlobs.io.ws = new WebSocket(`ws://${addressVal}`);
 
                 window.myGlobs.io.ws.addEventListener("open", function(e) {
                     updateTextArea("Connection opened!");
+                    // use the last thin and batchSize values
+                    window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
+                    window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
+                    playClicked = false;
+                    document.getElementById("play-button-img").src = "./img/play-bold.png";
+                    stopAnimation();
                 });
                 
                 window.myGlobs.io.ws.addEventListener("close", function(e) {
+                    onStreamClosed();
                     updateTextArea("Connection closed!");
                     switchInputBtnStatus(false);
+                    serverBtnState = false;
+                    startStreamFlag = false;
                 });
                 
                 window.myGlobs.io.ws.addEventListener("message", function(e) {
                     const inMessage = e.data.toString();
-                    updateTextArea(inMessage);
+                    if ( window.myGlobs.command == "start stream" ) { 
+                        if ( !startStreamFlag ) {
+                            clearDrawing();
+                            window.myGlobs.streamProcessor.initVars(inMessage);
+                        }
+                        startStreamFlag = true;
+                        window.myGlobs.streamProcessor.updateArr(inMessage);
+                    } else if ( window.myGlobs.command == "stop stream" ) {
+                        onStreamClosed();
+                        startStreamFlag = false;
+                    } else {
+                        updateTextArea(inMessage);
+                    }
                 });
             }
             switchInputBtnStatus(true);
@@ -248,6 +282,7 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                 window.myGlobs.io.ws = {};
             }
             switchInputBtnStatus(false);
+            startStreamFlag = false;
         }
     }
 }
@@ -259,9 +294,9 @@ window.myGlobs.io.serverMessageInput.addEventListener("click", () => {
 window.myGlobs.io.serverMessageInput.addEventListener("keyup", function(event) {
     event.preventDefault();
     if ((event.keyCode === 13) & window.myGlobs.io.ws.OPEN) {
-        let command = window.myGlobs.io.serverMessageInput.value;
-        if ((command.length > 0) & (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN)) {
-            window.myGlobs.io.ws.send(command);
+        window.myGlobs.command = window.myGlobs.io.serverMessageInput.value;
+        if ((window.myGlobs.command.length > 0) & (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN)) {
+            window.myGlobs.io.ws.send(window.myGlobs.command);
         }
     }
 });

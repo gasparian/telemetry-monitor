@@ -1,14 +1,12 @@
 import { roundToPrecision } from "./misc.js";
 
-export default function parseCsv(measurements, thin) {
-    // long/latt
-    let longLatArr = [];
-    // pitch/roll/yaw arrays
-    let pArr = [], rArr = [], yArr = [];
-    // altitude array (m)
-    let altArr = [], posAccArr = [], velAccArr = [];
-    let numsatArr = [], ts = [], measurement_row = {};
-    let count = 0, flag = false, i = 0, cols = [];
+// "timestamp,pitch,roll,yaw,alt,pos_accuracy,vel_accuracy,numsats,lon,lat"
+export default function parseCsv(measurements) {
+    let thin = window.myGlobs.vars.globThin;
+    let result = {}
+    let count = 0;
+    let flag = false;
+    let cols = [];
     let t0, dt;
     measurements.forEach(measurement => {
         if (count % thin) {
@@ -19,35 +17,23 @@ export default function parseCsv(measurements, thin) {
         if (measurement[0] == "timestamp") {
             measurement.forEach(col => {
                 cols.push(col);
+                result[col] = [];
             });
             count++;
             return;
         }
-        if ( !(measurement.length == 1) ) {
-            measurement_row = {};
-            i = 0;
-            cols.forEach(col => {
-                measurement_row[col] = measurement[i];
-                i++;
-            });
+        if ( measurement.length != 1 ) {
             if (!flag) {
-                t0 = Date.parse(measurement_row["timestamp"]);
+                t0 = Date.parse(measurement[0]);
                 flag = true;
             }
-            dt = roundToPrecision((Date.parse(measurement_row["timestamp"]) - t0) / 1000.0, 100);
-            ts.push(dt);
-            pArr.push(parseFloat(measurement_row["pitch"]));
-            rArr.push(parseFloat(measurement_row["roll"]));
-            yArr.push(parseFloat(measurement_row["yaw"]));
-            altArr.push(parseFloat(measurement_row["alt"]));
-            posAccArr.push(parseFloat(measurement_row["pos_accuracy"]));
-            velAccArr.push(parseFloat(measurement_row["vel_accuracy"]));
-            numsatArr.push(parseFloat(measurement_row["numsats"]));
-            longLatArr.push([parseFloat(measurement_row["lon"]), 
-                             parseFloat(measurement_row["lat"])]);
+            dt = roundToPrecision((Date.parse(measurement[0]) - t0) / 1000.0, 100); // timestamp
+            result.timestamp.push(dt);
+            for ( let i=1; i < measurement.length; i++ ) {
+                result[cols[i]].push(parseFloat(measurement[i]));
+            }
         };
         count++;
     });
-    return { ts, pArr, rArr, yArr, altArr, posAccArr, velAccArr, numsatArr, longLatArr };
+    return result
 };
-
