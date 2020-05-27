@@ -9,8 +9,8 @@ If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) d
 In order to work with custom-formatted data, change implementation of `parseData()` methods in `./client/js/data_processors.js`.  
 
 ### Controls  
- - `Choose file` - is for file upload;  
- - `reset/play/stop` buttons are for animation of ended ride (when the socket is closed);  
+ - `Choose file` - is for file uploading;  
+ - `reset/play/stop` buttons are for animation of the finished ride (when the socket is closed);  
  - `Socket` button opens and closes web-socket connetction with the embedded server;  
  - Input fields needs to send commands via web-socket connection;  
  - Text area on the right is for server logs;  
