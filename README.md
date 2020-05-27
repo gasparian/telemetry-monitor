@@ -8,10 +8,16 @@ https://gasparian.github.io/telemetry_monitor/client/
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 In order to work with custom-formatted data, change implementation of `parseData()` methods in `./client/js/data_processors.js`.  
 
-### Control  
-
+### Controls  
+ - `Choose file` - is for file upload;  
+ - `reset/play/stop` buttons are for animation of ended ride (when the socket is closed);  
+ - `Socket` button opens and closes web-socket connetction with the embedded server;  
+ - Input fields needs to send commands via web-socket connection;  
+ - Text area on the right is for server logs;  
 
 ### To do:  
+ - make data which comes from socket "playable";  
+ - add `download` button;  
  - do something with state management (redux?);  
  - charts.js --> D3.js (?);  
  - work with graphs' zooming/panning;  
