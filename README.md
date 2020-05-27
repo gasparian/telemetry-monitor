@@ -8,28 +8,26 @@ https://gasparian.github.io/telemetry_monitor/client/
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 In order to work with custom-formatted data, change implementation of `parseData()` methods in `./client/js/data_processors.js`.  
 
+### Control  
+
+
 ### To do:  
- - build server on C++ (use web-sockets --> boost.beast):  
-     - add commands processor on server;  
-     - add commands reference in a readme;  
+ - do something with state management (redux?);  
  - charts.js --> D3.js (?);  
  - work with graphs' zooming/panning;  
 
-### Libs  
+### Libs / APIs  
  - ArcGIS;  
- - charts.js;
- - hammerjs;  
+ - charts.js;  
+ - boost: asio + beast;  
 
+### Running client locally  
  Install:  
  - node;  
  - express: `npm init --yes` --> `npm i express`;  
-
- For local tests:  
  - nodemon: `npm i -g nodemon`;  
 
-### Running client  
-
-Server with auto-reloading:  
+Start server with auto-reloading:  
 ```
 nodemon app.js
 ```  
@@ -67,6 +65,7 @@ Run the server:
 ```
 ./websocket-server-sync 0.0.0.0 8008
 ```  
+Messages processing logic is implemented in `./embedded_server_proto/src/session_processor.hpp`-->`do_session`.  
 
 ### Kitti data format specs  
 ```

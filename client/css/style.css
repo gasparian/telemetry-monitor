@@ -89,7 +89,16 @@ html, body {
                         display: block;
                         margin-left: auto;
                         margin-right: auto;
+                    }
+
+                    #reset-img {
                         width: 50%;
+                    }
+                    #play-button-img {
+                        width: 45%;
+                    }
+                    #stop-button-img {
+                        width: 40%;
                     }
 
                 .player-buttons:hover { 
