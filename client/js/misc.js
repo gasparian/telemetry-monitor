@@ -49,3 +49,12 @@ export class dataListener {
       return this.valInternal;
     };
 };
+
+export function getFormattedTime() {
+    const today = new Date();
+    const dateArr = [
+        today.getFullYear(), today.getMonth() + 1, today.getDate(),
+        today.getHours(), today.getMinutes(), today.getSeconds()
+    ]
+    return dateArr.join("-");
+}

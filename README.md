@@ -14,10 +14,10 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Socket` button opens and closes web-socket connetction with the embedded server;  
  - Input fields needs to send commands via web-socket connection;  
  - Text area on the right is for server logs;  
+ - `Download` - is for downloading the parsed data to the local machine;  
 
 ### To do:  
- - make data which comes from socket "playable";  
- - add `download` button;  
+ - solve problem viewport size changing;  
  - do something with state management (redux?);  
  - charts.js --> D3.js (?);  
  - work with graphs' zooming/panning;  

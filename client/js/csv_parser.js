@@ -1,13 +1,13 @@
 import { roundToPrecision } from "./misc.js";
 
 // "timestamp,pitch,roll,yaw,alt,pos_accuracy,vel_accuracy,numsats,lon,lat"
-export default function parseCsv(measurements) {
+export default function parseCsv(measurements, t0=undefined) {
     let thin = window.myGlobs.vars.globThin;
     let result = {}
     let count = 0;
     let flag = false;
     let cols = [];
-    let t0, dt;
+    let dt;
     measurements.forEach(measurement => {
         if (count % thin) {
             count++;
@@ -23,7 +23,7 @@ export default function parseCsv(measurements) {
             return;
         }
         if ( measurement.length != 1 ) {
-            if (!flag) {
+            if ( (!flag) & (!t0) ) {
                 t0 = Date.parse(measurement[0]);
                 flag = true;
             }
@@ -35,5 +35,19 @@ export default function parseCsv(measurements) {
         };
         count++;
     });
-    return result
+    return {result, t0}
 };
+
+export function formCsv(data) {
+    let result = [Object.keys(data).join(",")];
+    const n_rows = data.timestamp.length;
+    for ( let i=0; i < n_rows; i++ ) {
+        let row = [];
+        for ( const col in data ) {
+            row.push(data[col][i]);
+        }
+        result.push(row.join(","));
+    }
+    return result.join("\n");
+}
+
