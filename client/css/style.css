@@ -5,10 +5,19 @@ html, body {
 
 #map-view {
     position: absolute;
-    width: 54%;
+    width: 55%;
     left: 0px;
     bottom: 0px;
     top: 0px;
+}
+
+:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.esri-view .esri-view-surface--inset-outline:focus::after {
+    outline: none !important;
 }
 
 .charts-block {
@@ -66,8 +75,6 @@ html, body {
 
             #left-buttons {
                 position: relative;
-                /* top: 1%; */
-                /* width: 100%; */
                 width: auto;
                 height: 50%;
                 text-align: center;
@@ -136,7 +143,7 @@ html, body {
 
                 #server-start-button {
                     width: 32%;
-                    height: 100%;
+                    height: 95%;
                     position: relative;
                     float: right;
                     color: black; 
@@ -156,47 +163,73 @@ html, body {
                     background-color: var(--sendColorHover);
                 }
 
-            #freq-input {
-                height: 25%;
+            #freq-input-download {
                 position: relative;
-                margin-left: 2%;
-                margin-top: 4%;
+                height: 50%;
                 width: 100%;
+                overflow: hidden;
+                display: flex;
             }
-    
-                #range-freq {
-                    width: 62%;
-                    -webkit-appearance: none;
-                    --sliderColor: #f1f1f1;
-                    --trackColor: #639fff;
+                #freq-input {
+                    position: relative;
+                    display: inline-block;
+                    margin-left: 2%;
+                    width: 64.5%;
+                    top: 30%; 
                 }
-
-                    #range-freq::-webkit-slider-runnable-track {
-                        width: 100%;
-                        height: 7px;
-                        cursor: pointer;
-                        background: var(--trackColor);
-                    }
-
-                    #range-freq::-webkit-slider-thumb {
-                        height: 20px;
-                        width: 20px;
-                        border-radius: 50%;
-                        background: var(--sliderColor);
-                        box-shadow: 0 0 4px 0 rgba(0,0,0, 1);
-                        cursor: pointer;
+        
+                    #range-freq {
+                        width: 65%;
                         -webkit-appearance: none;
-                        margin-top: -7px;
+                        --sliderColor: #f1f1f1;
+                        --trackColor: #639fff;
                     }
-    
-                #range-output {
-                    float: right;
-                    margin-left: 1%;
-                    width: 35%;
-                    color: #f1f1f1;
-                    margin-top: 0.5%;
-                    font-size: 100%;
-                }
+
+                        #range-freq::-webkit-slider-runnable-track {
+                            width: 100%;
+                            height: 7px;
+                            cursor: pointer;
+                            background: var(--trackColor);
+                        }
+
+                        #range-freq::-webkit-slider-thumb {
+                            height: 20px;
+                            width: 20px;
+                            border-radius: 50%;
+                            background: var(--sliderColor);
+                            box-shadow: 0 0 4px 0 rgba(0,0,0, 1);
+                            cursor: pointer;
+                            -webkit-appearance: none;
+                            margin-top: -7px;
+                        }
+        
+                    #range-output {
+                        display: inline-block;
+                        width: 29%;
+                        color: #f1f1f1;
+                        margin-top: 0.5%;
+                        font-size: 85%;
+                    }
+
+                #download {
+                    height: 90%;
+                    position: relative;
+                    display: inline-block;
+                    border: 1px solid #000;
+                    margin-top: 1%;
+                    width: 32%;
+                    margin-right: 1%;
+                    border-radius: 10px;
+                    background-color: #aaaaaa;
+                }   
+                    #download:hover {
+                        background-color: #bbbbbb;
+                    }
+
+                    #download-img {
+                        max-height: 60%;
+                        width: 30%;
+                    }
 
         #server-log-block {
             position: relative;

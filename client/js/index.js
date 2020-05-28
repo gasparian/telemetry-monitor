@@ -1,7 +1,8 @@
 import myChart from "./charts_draw.js";
 import { drawCone } from "./map_draw.js";
+import { formCsv } from "./csv_parser.js";
 import { clearDrawing, processDataFile, processStream } from "./data_processors.js";
-import { Stopwatch, dataListener } from "./misc.js";
+import { Stopwatch, dataListener, getFormattedTime } from "./misc.js";
 import { drawPause, switchCoverSpin, changeBtnStatus, 
          stopAnimation, switchPlayerBtns, switchInputBtnStatus} from "./animation.js";
 
@@ -30,7 +31,8 @@ window.myGlobs = {
             slider: document.querySelector('input[name=range-input]'),
             range: document.getElementById("range-freq"),
             resetZoom: document.getElementById("zoom-reset"),
-            fileInputBtn: document.getElementById("inp-file-button")
+            fileInputBtn: document.getElementById("inp-file-button"),
+            downloadBtn: document.getElementById("download")
         },
 
         io: {
@@ -157,9 +159,9 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
         changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#bbbbbb`, `#bbbbbb`]);
         if (!playClicked) {
             playClicked = true;
-            document.getElementById("play-button-img").src = "./img/pause-bold.png";
             switchPlayerBtns(true);
             if ( (!window.myGlobs.vars.stopFlag) & (!wsIsOpen) ) {
+                document.getElementById("play-button-img").src = "./img/pause-bold.png";
                 window.myGlobs.fileProcessor.batchSize = window.myGlobs.batchSize;
                 clearDrawing();
                 window.myGlobs.fileProcessor.initVars();
@@ -167,7 +169,7 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
                 window.myGlobs.drawingFinished.value = false;
                 drawPause("fileProcessor");
             } else if ( wsIsOpen ) {
-                changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#009578`, `#00b28f`]);
+                changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", true, [`#009578`, `#00b28f`]);
                 window.myGlobs.command = "start stream";
                 window.myGlobs.io.ws.send(window.myGlobs.command);
             }
@@ -177,10 +179,6 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
             if ( !window.myGlobs.drawingFinished.value ) {
                 window.myGlobs.vars.stopFlag = true;
                 stopAnimation();
-                if ( wsIsOpen ) {
-                    window.myGlobs.command = "stop stream";
-                    window.myGlobs.io.ws.send(window.myGlobs.command);
-                }
             }
         }
     }
@@ -222,12 +220,17 @@ function onStreamClosed() {
         window.myGlobs.streamProcessor.parseData();
         drawCone(window.myGlobs.streamProcessor.parsedData.lon[window.myGlobs.streamProcessor.maxId-1], 
                  window.myGlobs.streamProcessor.parsedData.lat[window.myGlobs.streamProcessor.maxId-1], true);
+        // copy collected data to the fileprocessor so it "can be played"
+        window.myGlobs.fileProcessor.parsedData = window.myGlobs.streamProcessor.parsedData;
+        // re-init streamPtocessor to drop the parsedData
+        window.myGlobs.streamProcessor.initVars();
     }
     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#aaaaaa`, `#bbbbbb`]); // change play button color back
     if ( playClicked ) {
         playClicked = false;
         document.getElementById("play-button-img").src = "./img/play-bold.png";
     }
+    window.myGlobs.vars.stopFlag = false;
 }
 
 let serverBtnState = false;
@@ -300,5 +303,30 @@ window.myGlobs.io.serverMessageInput.addEventListener("keyup", function(event) {
         }
     }
 });
+
+window.myGlobs.buttons.downloadBtn.onclick = function(e) {
+    const filename = "ride-" + getFormattedTime();
+    let data = undefined;
+    if ( window.myGlobs.streamProcessor.maxId > 1) {
+        data = formCsv(window.myGlobs.streamProcessor.parsedData);
+    } else if ( window.myGlobs.fileProcessor.parsedData ) {
+        data = formCsv(window.myGlobs.fileProcessor.parsedData);
+    }
+    if ( data ) {
+        const blob = new Blob([data], {type: 'text/csv'});
+
+        if(window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveBlob(blob, filename);
+        }
+        else {
+            let elem = window.document.createElement('a');
+            elem.href = window.URL.createObjectURL(blob);
+            elem.download = filename; 
+            document.body.appendChild(elem);
+            elem.click();        
+            document.body.removeChild(elem);
+        }
+    }
+}
 
 /*-------------------------------------- Server Communication ----------------------------------------*/

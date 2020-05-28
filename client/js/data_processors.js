@@ -44,7 +44,7 @@ export class processDataFile {
     // TO DO: change this function in order parse the `real` data <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     parseData() {
         let measurements = this.reader.result.split("\n");
-        this.parsedData = parseCsv(measurements);
+        this.parsedData = parseCsv(measurements).result;
     }
 
     startdraw() {
@@ -101,6 +101,7 @@ export class processStream {
         this.length = new dataListener(0);
         this.i = 0;
         this.firstIter = true;
+        this.t0 = undefined;
         this.wEnd = 1;
         this.maxId = 1; // for compatibility with `drawPause` function
 
@@ -111,9 +112,12 @@ export class processStream {
 
     // TO DO: change this function in order parse the `real` data <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     parseData() {
-        const parsed = parseCsv(this.measurements);
+        const parsed = parseCsv(this.measurements, this.t0);
+        if ( (!this.t0) & (parsed.t0) ) {
+            this.t0 = parsed.t0;
+        }
         for ( const col in this.parsedData ) {
-            this.parsedData[col].push(...parsed[col]);
+            this.parsedData[col].push(...parsed.result[col]);
         }
         this.maxId = this.parsedData.timestamp.length;
         this.length.value = this.maxId;
