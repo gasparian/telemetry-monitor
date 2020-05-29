@@ -7,7 +7,7 @@ import { drawPause, switchCoverSpin, changeBtnStatus,
          stopAnimation, switchPlayerBtns, switchInputBtnStatus} from "./animation.js";
 
 /*---------------------------------------------------------------------------------------------------*/
-// DIRTY: assign all window.myGlobs to window object
+// DIRTY: create globals into window object
 window.myGlobs = {
         // position accuracy multiplier
         vars: {
@@ -159,17 +159,19 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
         changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#bbbbbb`, `#bbbbbb`]);
         if (!playClicked) {
             playClicked = true;
-            switchPlayerBtns(true);
-            if ( (!window.myGlobs.vars.stopFlag) & (!wsIsOpen) ) {
+            if (!wsIsOpen) {
                 document.getElementById("play-button-img").src = "./img/pause-bold.png";
+                switchPlayerBtns(true);
                 window.myGlobs.fileProcessor.batchSize = window.myGlobs.batchSize;
-                clearDrawing();
-                window.myGlobs.fileProcessor.initVars();
-                window.myGlobs.fileProcessor.startdraw();
-                window.myGlobs.drawingFinished.value = false;
+                if (!window.myGlobs.vars.stopFlag) {
+                    clearDrawing();
+                    window.myGlobs.fileProcessor.initVars();
+                    window.myGlobs.fileProcessor.startdraw();
+                    window.myGlobs.drawingFinished.value = false;
+                }
                 drawPause("fileProcessor");
-            } else if ( wsIsOpen ) {
-                changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", true, [`#009578`, `#00b28f`]);
+            } else {
+                window.myGlobs.buttons.playBtn.disable = true;
                 window.myGlobs.command = "start stream";
                 window.myGlobs.io.ws.send(window.myGlobs.command);
             }
@@ -249,6 +251,7 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                     window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
                     window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
                     playClicked = false;
+                    changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#009578`, `#00b28f`]);
                     document.getElementById("play-button-img").src = "./img/play-bold.png";
                     stopAnimation();
                 });
