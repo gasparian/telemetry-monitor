@@ -17,8 +17,8 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Download` - is for downloading the parsed data to the local machine;  
 
 ### To do:  
- - add css media query (aka make adaptive layout);  
  - do something with state management (redux?);  
+ - make data parser for custom data;  
  - charts.js --> D3.js (?);  
  - work with graphs' zooming/panning;  
 
