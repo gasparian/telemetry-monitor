@@ -14,7 +14,7 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Socket` button opens and closes web-socket connetction with the embedded server;  
  - Input fields needs to send commands via web-socket connection;  
  - Text area on the right is for server logs;  
- - `Download` - is for downloading the parsed data to the local machine;  
+ - `Download` - is for downloading parsed data to the local machine;  
 
 ### To do:  
  - do something with state management (redux?);  
