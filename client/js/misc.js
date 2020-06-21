@@ -58,3 +58,8 @@ export function getFormattedTime() {
     ]
     return dateArr.join("-");
 }
+
+export function updateTextArea(text) {
+    window.myGlobs.io.serverLogOutput.value += text + "\n";
+    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
+}
