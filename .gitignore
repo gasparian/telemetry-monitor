@@ -4,3 +4,4 @@ package.json
 !/data/sample.csv
 /embedded_server_proto/build/
 .vscode
+tsconfig.json

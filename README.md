@@ -17,11 +17,9 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Download` - is for downloading parsed data to the local machine;  
 
 ### To do:  
- - add server allerts instead of a text-block;  
- - keep only the server address field - drop a server command field;  
  - add button to upload config file to the embedded server;  
 
- - make graphs in real-time manner;  
+ - make graphs in a real-time manner;  
  - migrate to the typescript;  
 
  - make data parser for custom data;  
