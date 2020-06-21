@@ -1,8 +1,8 @@
 import myChart from "./charts_draw.js";
 import { drawCone } from "./map_draw.js";
 import { formCsv } from "./csv_parser.js";
-import { clearDrawing, processDataFile, processStream } from "./data_processors.js";
-import { Stopwatch, dataListener, getFormattedTime, updateTextArea } from "./misc.js";
+import { clearDrawing, processDataFile, processStream, sendFileWebSocket } from "./data_processors.js";
+import { Stopwatch, dataListener, getFormattedTime, updateTextArea, checkWsIsOpen } from "./misc.js";
 import { drawPause, switchCoverSpin, changeBtnStatus, 
          stopAnimation, switchPlayerBtns, switchInputBtnStatus} from "./animation.js";
 
@@ -32,12 +32,14 @@ window.myGlobs = {
             range: document.getElementById("range-freq"),
             resetZoom: document.getElementById("zoom-reset"),
             fileInputBtn: document.getElementById("inp-file-button"),
-            downloadBtn: document.getElementById("download")
+            downloadBtn: document.getElementById("download"),
+            uploadConfigBtn: document.getElementById("upload-config")
         },
 
         io: {
             rangeVal: document.getElementById("range-output"),
             fileInput: document.getElementById("inp-file"), // file upload
+            configFileInput: document.getElementById("inp-config-file"),
             serverAdressInput: document.getElementById("server-address-inp"),
             serverLogOutput: document.getElementById("log"),
             ws: {},
@@ -153,11 +155,11 @@ window.myGlobs.drawingFinished.registerListener(function(val) {
 
 let playClicked = false;
 window.myGlobs.buttons.playBtn.onclick = async function(e) {
-    const wsIsOpen = (window.myGlobs.io.ws.readyState) & (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN);
+    const wsIsOpen = checkWsIsOpen();
     if ( window.myGlobs.fileProcessor.parsedData || window.myGlobs.io.ws.OPEN ) {
         changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#bbbbbb`, `#bbbbbb`]);
         if (!playClicked) {
-            if ( !wsIsOpen & window.myGlobs.fileProcessor.parsedData ) {
+            if ( !wsIsOpen && window.myGlobs.fileProcessor.parsedData ) {
                 playClicked = true;
                 document.getElementById("play-button-img").src = "./img/pause-bold.png";
                 switchPlayerBtns(true);
@@ -170,6 +172,7 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
                 }
                 drawPause("fileProcessor");
             } else if (wsIsOpen) {
+                // some demo code; this should be changed with real server
                 playClicked = true;
                 window.myGlobs.buttons.playBtn.disable = true;
                 window.myGlobs.command = "start stream";
@@ -314,5 +317,22 @@ window.myGlobs.buttons.downloadBtn.onclick = function(e) {
         }
     }
 }
+
+// upload and send *.yaml config file to the embedded server
+window.myGlobs.buttons.uploadConfigBtn.onclick = function(e) {
+    window.myGlobs.io.configFileInput.click();
+}
+window.myGlobs.io.configFileInput.onchange = function(e) {
+    const fname = window.myGlobs.io.configFileInput.value;
+    const wsIsOpen = checkWsIsOpen();
+    if (fname && wsIsOpen) {
+        const fileExtension = fname.split('.').pop()
+        if ( (fileExtension === "yaml") || (fileExtension === "yml") ) {
+            sendFileWebSocket(window.myGlobs.io.configFileInput.files[0]);
+        } else {
+            alert("Config file must has a yaml/yml extension!");
+        }
+    }
+};
 
 /*-------------------------------------- Server Communication ----------------------------------------*/
