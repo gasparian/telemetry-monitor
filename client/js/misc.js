@@ -63,3 +63,8 @@ export function updateTextArea(text) {
     window.myGlobs.io.serverLogOutput.value += text + "\n";
     window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
 }
+
+export function checkWsIsOpen() {
+    const wsIsOpen = (window.myGlobs.io.ws.readyState) && (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN);
+    return wsIsOpen;
+}

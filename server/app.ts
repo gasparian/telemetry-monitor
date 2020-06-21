@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { ConnectionOptions } from "tls";
 
 const app: express.Application = express();
 const port: number = 3000;

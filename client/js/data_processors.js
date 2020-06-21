@@ -3,6 +3,20 @@ import { dataListener } from "./misc.js";
 import { drawMapPolyline, drawCone } from "./map_draw.js";
 import { drawPause } from "./animation.js";
 
+export function sendFileWebSocket(file) {
+    var reader = new FileReader();
+    var rawData = new ArrayBuffer();
+
+    reader.loadend = function() {
+
+    }
+    reader.onload = function(e) {
+        rawData = e.target.result;
+        window.myGlobs.io.ws.send(rawData);
+    }
+    reader.readAsArrayBuffer(file);
+}
+
 export function clearDrawing() {
     window.myGlobs.maps.graphicsLayer.removeAll();
     for ( const key in window.myGlobs.charts ) {
