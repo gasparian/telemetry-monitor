@@ -2,7 +2,7 @@ import myChart from "./charts_draw.js";
 import { drawCone } from "./map_draw.js";
 import { formCsv } from "./csv_parser.js";
 import { clearDrawing, processDataFile, processStream } from "./data_processors.js";
-import { Stopwatch, dataListener, getFormattedTime } from "./misc.js";
+import { Stopwatch, dataListener, getFormattedTime, updateTextArea } from "./misc.js";
 import { drawPause, switchCoverSpin, changeBtnStatus, 
          stopAnimation, switchPlayerBtns, switchInputBtnStatus} from "./animation.js";
 
@@ -39,7 +39,6 @@ window.myGlobs = {
             rangeVal: document.getElementById("range-output"),
             fileInput: document.getElementById("inp-file"), // file upload
             serverAdressInput: document.getElementById("server-address-inp"),
-            serverMessageInput: document.getElementById("server-command-inp"),
             serverLogOutput: document.getElementById("log"),
             ws: {},
         },
@@ -158,8 +157,8 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
     if ( window.myGlobs.fileProcessor.parsedData || window.myGlobs.io.ws.OPEN ) {
         changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#bbbbbb`, `#bbbbbb`]);
         if (!playClicked) {
-            playClicked = true;
-            if (!wsIsOpen) {
+            if ( !wsIsOpen & window.myGlobs.fileProcessor.parsedData ) {
+                playClicked = true;
                 document.getElementById("play-button-img").src = "./img/pause-bold.png";
                 switchPlayerBtns(true);
                 window.myGlobs.fileProcessor.batchSize = window.myGlobs.batchSize;
@@ -170,7 +169,8 @@ window.myGlobs.buttons.playBtn.onclick = async function(e) {
                     window.myGlobs.drawingFinished.value = false;
                 }
                 drawPause("fileProcessor");
-            } else {
+            } else if (wsIsOpen) {
+                playClicked = true;
                 window.myGlobs.buttons.playBtn.disable = true;
                 window.myGlobs.command = "start stream";
                 window.myGlobs.io.ws.send(window.myGlobs.command);
@@ -211,11 +211,6 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
 
 /*-------------------------------------- Server Communication ----------------------------------------*/
 
-function updateTextArea(text) {
-    window.myGlobs.io.serverLogOutput.value += text + "\n";
-    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
-}
-
 function onStreamClosed() {
     if ( window.myGlobs.streamProcessor.maxId > 1 ) { 
         // draw final points and cone if the data was sent
@@ -245,8 +240,11 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
             if ( (!window.myGlobs.io.ws.OPEN) || (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.CLOSED) ) {
                 window.myGlobs.io.ws = new WebSocket(`ws://${addressVal}`);
 
+                window.myGlobs.io.ws.onerror = function(event) {
+                    alert("WebSocket error observed: ", event);
+                };
+
                 window.myGlobs.io.ws.addEventListener("open", function(e) {
-                    updateTextArea("Connection opened!");
                     // use the last thin and batchSize values
                     window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
                     window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
@@ -258,7 +256,6 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                 
                 window.myGlobs.io.ws.addEventListener("close", function(e) {
                     onStreamClosed();
-                    updateTextArea("Connection closed!");
                     switchInputBtnStatus(false);
                     serverBtnState = false;
                     startStreamFlag = false;
@@ -292,20 +289,6 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
         }
     }
 }
-
-window.myGlobs.io.serverMessageInput.addEventListener("click", () => {
-    window.myGlobs.io.serverMessageInput.value = "";
-});
-
-window.myGlobs.io.serverMessageInput.addEventListener("keyup", function(event) {
-    event.preventDefault();
-    if ((event.keyCode === 13) & window.myGlobs.io.ws.OPEN) {
-        window.myGlobs.command = window.myGlobs.io.serverMessageInput.value;
-        if ((window.myGlobs.command.length > 0) & (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN)) {
-            window.myGlobs.io.ws.send(window.myGlobs.command);
-        }
-    }
-});
 
 window.myGlobs.buttons.downloadBtn.onclick = function(e) {
     const filename = "ride-" + getFormattedTime();
