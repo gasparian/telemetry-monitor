@@ -1,8 +1,11 @@
 import { roundToPrecision } from "./misc.js";
 
 // "timestamp,pitch,roll,yaw,alt,pos_accuracy,vel_accuracy,numsats,lon,lat"
-export default function parseCsv(measurements, t0=undefined) {
-    let thin = window.myGlobs.vars.globThin;
+export default function parseCsv(measurements, t0=undefined, useThin=true) {
+    let thin = 1;
+    if ( useThin ) {
+        thin = window.myGlobs.vars.globThin;
+    }
     let result = {}
     let count = 0;
     let flag = false;

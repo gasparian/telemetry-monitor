@@ -43,6 +43,13 @@
                 <div id="server-input">
                     <input type="text" class="server-input-field" id="server-address-inp" placeholder="Server address..." value="localhost:8008">
 
+                    <label class="container" id="checkbox-container">Accumulate readings
+                        <input type="checkbox" id="checkbox-accumulate" disabled>
+
+                        <span class="checkmark" id="checkbox-checkmark"></span>
+                    </label>
+                          
+
                     <button type="button" id="server-start-button">Socket</button>
                 </div>
                 
@@ -58,7 +65,7 @@
                     </button>
 
                     <input type="file" id="inp-config-file" hidden="hidden">
-                    
+
                     <button type="button" id="upload-config">
                         <img src="./img/upload.png" class="button-img" id="upload-config-img"/>
                     </button>

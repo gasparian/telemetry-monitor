@@ -126,8 +126,8 @@ export class processStream {
 
     // TO DO: change this function in order parse the `real` data <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     parseData() {
-        const parsed = parseCsv(this.measurements, this.t0);
-        if ( (!this.t0) & (parsed.t0) ) {
+        const parsed = parseCsv(this.measurements, this.t0, false);
+        if ( (!this.t0) && (parsed.t0) ) {
             this.t0 = parsed.t0;
         }
         for ( const col in this.parsedData ) {

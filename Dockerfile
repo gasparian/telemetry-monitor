@@ -6,5 +6,5 @@ RUN npm init --yes && \
     npm install express
 
 EXPOSE 3000
-CMD [ "node", "app.js" ]
+CMD [ "node", "./src/server/app.js" ]
 
