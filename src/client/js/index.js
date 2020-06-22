@@ -33,7 +33,12 @@ window.myGlobs = {
             resetZoom: document.getElementById("zoom-reset"),
             fileInputBtn: document.getElementById("inp-file-button"),
             downloadBtn: document.getElementById("download"),
-            uploadConfigBtn: document.getElementById("upload-config")
+            uploadConfigBtn: document.getElementById("upload-config"),
+            checkBox: {
+                text: document.getElementById("checkbox-container"),
+                box: document.getElementById("checkbox-accumulate"),
+                checkmark: document.getElementById("checkbox-checkmark")
+            }
         },
 
         io: {
@@ -212,15 +217,15 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
 
 /*----------------------------------------- Offline Player -------------------------------------------*/
 
-/*-------------------------------------- Server Communication ----------------------------------------*/
+/*------------------------------- Server Communication / `Online` player -----------------------------*/
 
 function onStreamClosed() {
     if ( window.myGlobs.streamProcessor.maxId > 1 ) { 
         // draw final points and cone if the data was sent
-        window.myGlobs.streamProcessor.parseData();
+        window.myGlobs.streamProcessor.parseData(); // ? <-- it's only parses the data, not draws
         drawCone(window.myGlobs.streamProcessor.parsedData.lon[window.myGlobs.streamProcessor.maxId-1], 
                  window.myGlobs.streamProcessor.parsedData.lat[window.myGlobs.streamProcessor.maxId-1], true);
-        // copy collected data to the fileprocessor so it "can be played"
+        // copy collected data to the fileprocessor so it "can be played" (only if the checkbox is `true`)
         window.myGlobs.fileProcessor.parsedData = window.myGlobs.streamProcessor.parsedData;
         // re-init streamPtocessor to drop the parsedData
         window.myGlobs.streamProcessor.initVars();
@@ -253,6 +258,9 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                     window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
                     playClicked = false;
                     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#009578`, `#00b28f`]);
+                    window.myGlobs.buttons.checkBox.box.disabled = false;
+                    changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#f1f1f1`, `#f1f1f1`]);
+                    changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#f1f1f1`, `#f1f1f1`]);
                     document.getElementById("play-button-img").src = "./img/play-bold.png";
                     stopAnimation();
                 });
@@ -262,6 +270,9 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                     switchInputBtnStatus(false);
                     serverBtnState = false;
                     startStreamFlag = false;
+                    changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#888`, `#888`]);
+                    changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#888`, `#888`]);
+                    window.myGlobs.buttons.checkBox.box.disabled = true;
                 });
                 
                 window.myGlobs.io.ws.addEventListener("message", function(e) {
