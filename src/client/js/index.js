@@ -22,6 +22,7 @@ window.myGlobs = {
             globTimeoutMs: 250,
             stopFlag: false,
             rangeChanged: false,
+            lastBatchFlag: false
         },
 
         buttons: {
@@ -221,14 +222,13 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
 
 function onStreamClosed() {
     if ( window.myGlobs.streamProcessor.maxId > 1 ) { 
+        window.myGlobs.vars.lastBatchFlag = true;
         // draw final points and cone if the data was sent
-        window.myGlobs.streamProcessor.parseData(); // ? <-- it's only parses the data, not draws
+        window.myGlobs.streamProcessor.parseData(); // initiates drawPause function
         drawCone(window.myGlobs.streamProcessor.parsedData.lon[window.myGlobs.streamProcessor.maxId-1], 
                  window.myGlobs.streamProcessor.parsedData.lat[window.myGlobs.streamProcessor.maxId-1], true);
         // copy collected data to the fileprocessor so it "can be played" (only if the checkbox is `true`)
         window.myGlobs.fileProcessor.parsedData = window.myGlobs.streamProcessor.parsedData;
-        // re-init streamPtocessor to drop the parsedData
-        window.myGlobs.streamProcessor.initVars();
     }
     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#aaaaaa`, `#bbbbbb`]); // change play button color back
     if ( playClicked ) {
@@ -256,7 +256,9 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                     // use the last thin and batchSize values
                     window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
                     window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
+                    window.myGlobs.vars.lastBatchFlag = false;
                     playClicked = false;
+                    // change the buttons state
                     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#009578`, `#00b28f`]);
                     window.myGlobs.buttons.checkBox.box.disabled = false;
                     changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#f1f1f1`, `#f1f1f1`]);
