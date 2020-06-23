@@ -6,7 +6,7 @@ export function drawPause(classInstance) {
     let timeoutMs = window.myGlobs.vars.globTimeoutMs;
 
     function makeFrame() {
-        if (window.myGlobs[classInstance].i < window.myGlobs[classInstance].maxId) {
+        if ( (window.myGlobs[classInstance].i < window.myGlobs[classInstance].maxId) ) {
             if (!t0) {
                 t0 = new Date();
             }

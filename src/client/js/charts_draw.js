@@ -113,18 +113,28 @@ export default class myChart {
         });
     }
 
+    removeAll() {
+        this.chart.data.labels = [];
+        this.chart.data.datasets[0].data = [];
+        if ( this.chart.data.datasets.length == 2 ) {
+            this.chart.data.datasets[1].data = [];
+        }
+        this.chart.update();
+    };
+
     removeData(start, end) {
+        // FIX IT
         start = Math.max(0, start);
         if ( (end === -1) || (end > this.chart.data.labels.length) ) {
             end = this.chart.data.labels.length;
         }
-        
+
         for (let i=start; i<end; i++) {
             this.chart.data.labels.pop();
         }
         this.chart.data.datasets.forEach((dataset) => {
             for (let i=start; i<end; i++) {
-                dataset.data.pop();
+                dataset.data.pop(); // drops the last value
             }
         });
         this.chart.update();

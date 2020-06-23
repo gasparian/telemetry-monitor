@@ -20,7 +20,7 @@ export function sendFileWebSocket(file) {
 export function clearDrawing() {
     window.myGlobs.maps.graphicsLayer.removeAll();
     for ( const key in window.myGlobs.charts ) {
-        window.myGlobs.charts[key].removeData();
+        window.myGlobs.charts[key].removeAll();
     }
     return true;
 };
@@ -29,15 +29,15 @@ export class processDataFile {
 
     constructor() {
         this.parsedData = undefined;
-        this.maxId = null;
+        this.maxId = undefined;
         this.reader = new FileReader();
         this.initVars();
     }
 
     initVars() {
-        this.batchSize = null;
+        this.batchSize = undefined;
         this.i = 0;
-        this.wEnd = null;
+        this.wEnd = undefined;
         return true;
     };
 
@@ -45,7 +45,7 @@ export class processDataFile {
         this.reader.onloadend = (e) => {
             if (e.target.readyState == FileReader.DONE) {
                 this.parsedData = undefined;
-                this.maxId = null;
+                this.maxId = undefined;
                 this.initVars();
                 this.startdraw();
                 this.iterDraw();
@@ -155,7 +155,7 @@ export class processStream {
                 this.firstIter = false;
             }
             this.wEnd = Math.min(this.i+window.myGlobs.vars.batchSize*2, this.maxId);
-            if ( this.i != this.maxId ) {
+            if ( (this.i != this.maxId) ) {
                 const tsSlice = this.parsedData.timestamp.slice(this.i, this.wEnd);
                 window.myGlobs.charts.altChart.addData(tsSlice, this.parsedData.alt.slice(this.i, this.wEnd));
                 window.myGlobs.charts.yawChart.addData(tsSlice, this.parsedData.yaw.slice(this.i, this.wEnd));

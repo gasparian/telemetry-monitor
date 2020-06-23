@@ -17,10 +17,7 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Download` - is for downloading parsed data to the local machine;  
 
 ### To do:  
- - add check box for stream graphs plotting;  
- - make graphs in a real-time manner;  
- - drop the data thinning in socket mode;  
- - draw all buffer after the socket closed;  
+ - make graphs in a real-time manner (keep only last N seconds both on map and graphs);  
 
  - add ts compilation inside docker;  
 
