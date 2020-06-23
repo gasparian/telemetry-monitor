@@ -287,9 +287,9 @@ html, body {
 
 #freq-input {
     position: relative;
-    display: inline-block;
+    float: left;
     margin-left: 2%;
-    width: 60%;
+    width: 58%;
     top: 30%; 
     padding: 0;
 }
