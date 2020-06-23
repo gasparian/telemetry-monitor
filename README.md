@@ -18,8 +18,7 @@ In order to work with custom-formatted data, change implementation of `parseData
 
 ### To do:  
  - make graphs in a real-time manner (keep only last N seconds both on map and graphs);  
-
- - add ts compilation inside docker;  
+ - add ts compilation inside a docker;  
 
  - migrate to the typescript;  
 
