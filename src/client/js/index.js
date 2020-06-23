@@ -346,6 +346,7 @@ window.myGlobs.io.configFileInput.onchange = function(e) {
             alert("Config file must has a yaml/yml extension!");
         }
     }
+    window.myGlobs.io.configFileInput.value = ""; // back to empty fname --> open file browser every time
 };
 
 /*-------------------------------------- Server Communication ----------------------------------------*/
