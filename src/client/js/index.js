@@ -15,11 +15,9 @@ window.myGlobs = {
             mapZoom: 18, 
             maxPointsDraw: 1000, // map threshold
             globThin: 10,
-            newGlobThin: 10,
-            batchT: 1, // in sec.
             batchSize: 10, // initial animation batch size
-            newBatchSize: 10,
             globTimeoutMs: 250,
+            maxGraphLen: 100,
             stopFlag: false,
             rangeChanged: false,
             lastBatchFlag: false
@@ -52,12 +50,12 @@ window.myGlobs = {
         },
 
         charts: {
-            altChart: new myChart("Alt, m", 'alt-chart', "Altitude"),
+            alt: new myChart("Alt, m", 'alt-chart', "Altitude"),
             prChart: new myChart("Angle, rad.", 'pr-chart', "Pitch/Roll"),
-            yawChart: new myChart("Angle, rad.", 'yaw-chart', "Yaw"),
-            posChart: new myChart("Pos., m", 'pos-chart', "pos_accuracy"),
-            velChart: new myChart("V, m/s", 'vel-chart', "vel_accuracy"),
-            numsatChart: new myChart("#", 'numsat-chart', "num_satelites")
+            yaw: new myChart("Angle, rad.", 'yaw-chart', "Yaw"),
+            pos_accuracy: new myChart("Pos., m", 'pos-chart', "pos_accuracy"),
+            vel_accuracy: new myChart("V, m/s", 'vel-chart', "vel_accuracy"),
+            numsats: new myChart("#", 'numsat-chart', "num_satelites")
         },
 
         maps: {
@@ -83,12 +81,10 @@ window.myGlobs.buttons.fileInputBtn.onclick = function(e) {
 };
 
 // freq. input
-let freqValues = [1,2,5,10,20,50,100];
-let maxFreq = 100;
+let freqValues = [2,5,10,20,50,100,200];
 window.myGlobs.buttons.range.oninput = function(e) {
-    window.myGlobs.io.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} Hz`;
-    window.myGlobs.vars.newGlobThin = Math.floor(maxFreq / freqValues[window.myGlobs.buttons.range.value]);
-    window.myGlobs.vars.newBatchSize = Math.max(2, Math.floor(window.myGlobs.vars.batchT / (1/freqValues[window.myGlobs.buttons.range.value])));
+    window.myGlobs.io.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} n`;
+    window.myGlobs.vars.batchSize = freqValues[window.myGlobs.buttons.range.value];
     window.myGlobs.io.fileInput.value = ""; // to be able to reopen the file
 };
 
@@ -128,8 +124,6 @@ require(["esri/Map", "esri/views/MapView", "esri/views/SceneView", "esri/Graphic
 const readSw = new Stopwatch();
 window.myGlobs.io.fileInput.onchange = function(e) {
     if (window.myGlobs.io.fileInput.value) {
-        window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
-        window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
         switchCoverSpin(true);
         readSw.start();
         clearDrawing();
@@ -254,11 +248,10 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
 
                 window.myGlobs.io.ws.addEventListener("open", function(e) {
                     // use the last thin and batchSize values
-                    window.myGlobs.vars.globThin = window.myGlobs.vars.newGlobThin;
-                    window.myGlobs.vars.batchSize = window.myGlobs.vars.newBatchSize;
                     window.myGlobs.vars.lastBatchFlag = false;
                     playClicked = false;
                     // change the buttons state
+                    changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", false, [`#aaaaaa`, `#bbbbbb`]);
                     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#009578`, `#00b28f`]);
                     window.myGlobs.buttons.checkBox.box.disabled = false;
                     changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#f1f1f1`, `#f1f1f1`]);
@@ -272,6 +265,7 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                     switchInputBtnStatus(false);
                     serverBtnState = false;
                     startStreamFlag = false;
+                    changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", true, [`#888`, `#888`]);
                     changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#888`, `#888`]);
                     changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#888`, `#888`]);
                     window.myGlobs.buttons.checkBox.box.disabled = true;

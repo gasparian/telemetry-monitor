@@ -17,8 +17,9 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Download` - is for downloading parsed data to the local machine;  
 
 ### To do:  
- - make graphs in a real-time manner (keep only last N seconds both on map and graphs);  
  - add ts compilation inside a docker;  
+ - work with a batch-sized delay while streaming;  
+ - replace freq. and batch size with only the batch size;  
 
  - migrate to the typescript;  
 

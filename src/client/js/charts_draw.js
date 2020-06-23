@@ -122,20 +122,10 @@ export default class myChart {
         this.chart.update();
     };
 
-    removeData(start, end) {
-        // FIX IT
-        start = Math.max(0, start);
-        if ( (end === -1) || (end > this.chart.data.labels.length) ) {
-            end = this.chart.data.labels.length;
-        }
-
-        for (let i=start; i<end; i++) {
-            this.chart.data.labels.pop();
-        }
+    removeData(start, len) {
+        this.chart.data.labels.splice(start, len);
         this.chart.data.datasets.forEach((dataset) => {
-            for (let i=start; i<end; i++) {
-                dataset.data.pop(); // drops the last value
-            }
+            dataset.data.splice(start, len)
         });
         this.chart.update();
     };

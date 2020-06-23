@@ -337,6 +337,7 @@ html, body {
     width: 20%;
     margin-right: 1%;
     border-radius: 10px;
+    cursor: pointer;
     background-color: #aaaaaa;
 }   
 
@@ -358,11 +359,14 @@ html, body {
     width: 20%;
     margin-right: 1%;
     border-radius: 10px;
-    background-color: #aaaaaa;
+    cursor: pointer;
+    --uploadColor: #888;
+    --uploadColorHover: #888;
+    background-color: var(--uploadColor);
 }   
 
 #upload-config:hover {
-    background-color: #bbbbbb;
+    background-color: var(--uploadColorHover);
 }
 
 #upload-config-img {
