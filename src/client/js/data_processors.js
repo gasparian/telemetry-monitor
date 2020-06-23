@@ -77,12 +77,15 @@ export class processDataFile {
     iterDraw() {
         this.batchSize = this.batchSize ? this.batchSize : this.maxId;
         this.wEnd = Math.min(this.i+this.batchSize, this.maxId);
+
         const tsSlice = this.parsedData.timestamp.slice(this.i, this.wEnd);
-        window.myGlobs.charts.altChart.addData(tsSlice, this.parsedData.alt.slice(this.i, this.wEnd));
-        window.myGlobs.charts.yawChart.addData(tsSlice, this.parsedData.yaw.slice(this.i, this.wEnd));
-        window.myGlobs.charts.posChart.addData(tsSlice, this.parsedData.pos_accuracy.slice(this.i, this.wEnd));
-        window.myGlobs.charts.velChart.addData(tsSlice, this.parsedData.vel_accuracy.slice(this.i, this.wEnd));
-        window.myGlobs.charts.numsatChart.addData(tsSlice, this.parsedData.numsats.slice(this.i, this.wEnd));
+        for ( const chart in window.myGlobs.charts ) {
+            if ( chart == "prChart" ) {
+                continue;
+            }
+            window.myGlobs.charts[chart].addData(tsSlice, this.parsedData[chart].slice(this.i, this.wEnd));
+        }
+
         window.myGlobs.charts.prChart.addData(tsSlice, this.parsedData.pitch.slice(this.i, this.wEnd), 0);
         window.myGlobs.charts.prChart.addData([], this.parsedData.roll.slice(this.i, this.wEnd), 1);
         drawMapPolyline(this.parsedData, this.i, this.wEnd, this.maxId);
@@ -118,6 +121,7 @@ export class processStream {
         this.t0 = undefined;
         this.wEnd = 1;
         this.maxId = 1; // for compatibility with `drawPause` function
+        this.dropLen = 0;
 
         this.length.registerListener(function(val) { // start drawing after the `length` has been increased
             drawPause("streamProcessor");
@@ -154,18 +158,39 @@ export class processStream {
                 drawCone(this.parsedData.lon[0], this.parsedData.lat[0], false);
                 this.firstIter = false;
             }
-            this.wEnd = Math.min(this.i+window.myGlobs.vars.batchSize*2, this.maxId);
+            this.wEnd = Math.min(this.i+window.myGlobs.vars.batchSize*2, this.maxId); 
             if ( (this.i != this.maxId) ) {
-                const tsSlice = this.parsedData.timestamp.slice(this.i, this.wEnd);
-                window.myGlobs.charts.altChart.addData(tsSlice, this.parsedData.alt.slice(this.i, this.wEnd));
-                window.myGlobs.charts.yawChart.addData(tsSlice, this.parsedData.yaw.slice(this.i, this.wEnd));
-                window.myGlobs.charts.posChart.addData(tsSlice, this.parsedData.pos_accuracy.slice(this.i, this.wEnd));
-                window.myGlobs.charts.velChart.addData(tsSlice, this.parsedData.vel_accuracy.slice(this.i, this.wEnd));
-                window.myGlobs.charts.numsatChart.addData(tsSlice, this.parsedData.numsats.slice(this.i, this.wEnd));
-                window.myGlobs.charts.prChart.addData(tsSlice, this.parsedData.pitch.slice(this.i, this.wEnd), 0);
-                window.myGlobs.charts.prChart.addData([], this.parsedData.roll.slice(this.i, this.wEnd), 1);
+
+                console.log(this.i, this.wEnd, this.maxId, this.dropLen);
+
+                // update graphs according to the dropped values
+                const newI = this.i + this.dropLen;
+                const newWEnd = this.wEnd + this.dropLen;
+                const tsSlice = this.parsedData.timestamp.slice(newI, newWEnd);
+                for ( const chart in window.myGlobs.charts ) {
+                    if ( chart == "prChart" ) {
+                        continue;
+                    }
+                    window.myGlobs.charts[chart].addData(tsSlice, this.parsedData[chart].slice(newI, newWEnd));
+                }
+
+                window.myGlobs.charts.prChart.addData(tsSlice, this.parsedData.pitch.slice(newI, newWEnd), 0);
+                window.myGlobs.charts.prChart.addData([], this.parsedData.roll.slice(newI, newWEnd), 1);
+                // draw route on the map
                 drawMapPolyline(this.parsedData, this.i, this.wEnd, this.maxId);
                 this.i = this.wEnd;
+            }
+
+            // check if we need to redraw graphs w/o `old` values
+            // just take any chart to see its' length since they're all equal
+            if ( (!window.myGlobs.buttons.checkBox.box.checked) ) {
+                this.dropLen = window.myGlobs.charts.alt.chart.data.labels.length - window.myGlobs.vars.maxGraphLen;
+                this.dropLen = (this.dropLen < 0) ? 0 : this.dropLen;
+                if ( (this.dropLen > 0) ) {
+                    for ( const chart in window.myGlobs.charts ) {
+                        window.myGlobs.charts[chart].removeData(0, this.dropLen);
+                    }
+                }                
             }
         }
     }
