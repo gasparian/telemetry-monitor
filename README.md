@@ -1,5 +1,5 @@
 <img src="https://travis-ci.com/gasparian/telemetry_monitor.svg?branch=master"/>  
-https://gasparian.github.io/telemetry_monitor/client/  
+https://gasparian.github.io/telemetry_monitor/src/client/  
 
 ## Telemetry monitor  
 
