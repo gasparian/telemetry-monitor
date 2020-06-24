@@ -45,20 +45,12 @@ export function drawPosPolyLine(arr, acc) {
 
 export function drawMapPolyline(arr, start, end, maxId) {
     end = Math.min(maxId, end);
-    if (start == end) {start -= 1;}
-    let maxPointsDraw = window.myGlobs.vars.maxPointsDraw;
-    if (end < maxId) {
-        maxPointsDraw = 10;
-    }
-
     let counter = 0;
     let clon = 0;
     let clat = 0;
     let len = end - start;
     let newArr = [], posArr = [];
-    let thin = 0;
-    if ( len > maxPointsDraw )
-        thin = Math.ceil(len / maxPointsDraw);
+    let thin = Math.max(2, Math.ceil(len / window.myGlobs.vars.thinDivisor));
     for (let i=start; i < end; i++) {
         if ( !((len-i) % thin) || (i == (end-1)) || (i == start) ) {
             clon += arr.lon[i];
@@ -70,6 +62,8 @@ export function drawMapPolyline(arr, start, end, maxId) {
     }
     clon /= counter;
     clat /= counter;
+
+    console.log(thin, counter);
 
     for (let i=1; i < newArr.length; i++) {
         drawPosPolyLine(newArr.slice(i-1, i+1), posArr[i]);

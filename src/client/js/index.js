@@ -13,14 +13,15 @@ window.myGlobs = {
         vars: {
             covarianceMult: 10, // GNSS uncertainty multiplier
             mapZoom: 18, 
-            maxPointsDraw: 1000, // map threshold
+            thinDivisor: 20, // for maps drawing
             globThin: 10,
-            batchSize: 10, // initial animation batch size
+            batchSize: 100, // initial animation batch size
             globTimeoutMs: 250,
             maxGraphLen: 100,
             stopFlag: false,
             rangeChanged: false,
-            lastBatchFlag: false
+            lastBatchFlag: false,
+            requestid: undefined
         },
 
         buttons: {
@@ -81,7 +82,7 @@ window.myGlobs.buttons.fileInputBtn.onclick = function(e) {
 };
 
 // freq. input
-let freqValues = [2,5,10,20,50,100,200];
+let freqValues = [10,20,50,100,200];
 window.myGlobs.buttons.range.oninput = function(e) {
     window.myGlobs.io.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} n`;
     window.myGlobs.vars.batchSize = freqValues[window.myGlobs.buttons.range.value];
@@ -144,7 +145,7 @@ window.myGlobs.io.fileInput.onchange = function(e) {
 window.myGlobs.drawingFinished.registerListener(function(val) {
     if (val) {
         window.myGlobs.fileProcessor.drawLastCone();
-        window.myGlobs.fileProcessor.batchSize = null;
+        window.myGlobs.fileProcessor.batchSize = undefined;
         window.myGlobs.stopFlag = false;
         playClicked = false;
         switchPlayerBtns(false);
@@ -197,7 +198,7 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
             switchCoverSpin(true);
             stopSw.start();
             stopAnimation();
-            window.myGlobs.fileProcessor.batchSize = null;
+            window.myGlobs.fileProcessor.batchSize = undefined;
             window.myGlobs.fileProcessor.iterDraw();
             stopSw.stop();
             setTimeout(() => switchCoverSpin(false), 
@@ -221,8 +222,10 @@ function onStreamClosed() {
         window.myGlobs.streamProcessor.parseData(); // initiates drawPause function
         drawCone(window.myGlobs.streamProcessor.parsedData.lon[window.myGlobs.streamProcessor.maxId-1], 
                  window.myGlobs.streamProcessor.parsedData.lat[window.myGlobs.streamProcessor.maxId-1], true);
-        // copy collected data to the fileprocessor so it "can be played" (only if the checkbox is `true`)
-        window.myGlobs.fileProcessor.parsedData = window.myGlobs.streamProcessor.parsedData;
+        if ( window.myGlobs.buttons.checkBox.box.checked ) {
+            // copy collected data to the fileprocessor so it "can be played"
+            window.myGlobs.fileProcessor.parsedData = window.myGlobs.streamProcessor.parsedData;
+        }
     }
     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#aaaaaa`, `#bbbbbb`]); // change play button color back
     if ( playClicked ) {
@@ -247,11 +250,11 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                 };
 
                 window.myGlobs.io.ws.addEventListener("open", function(e) {
-                    // use the last thin and batchSize values
                     window.myGlobs.vars.lastBatchFlag = false;
                     playClicked = false;
                     // change the buttons state
                     changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", false, [`#aaaaaa`, `#bbbbbb`]);
+                    changeBtnStatus(window.myGlobs.buttons.downloadBtn, "downloadColor", true, [`#888`, `#888`]);
                     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#009578`, `#00b28f`]);
                     window.myGlobs.buttons.checkBox.box.disabled = false;
                     changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#f1f1f1`, `#f1f1f1`]);
@@ -266,6 +269,7 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                     serverBtnState = false;
                     startStreamFlag = false;
                     changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", true, [`#888`, `#888`]);
+                    changeBtnStatus(window.myGlobs.buttons.downloadBtn, "downloadColor", false, [`#aaaaaa`, `#bbbbbb`]);
                     changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#888`, `#888`]);
                     changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#888`, `#888`]);
                     window.myGlobs.buttons.checkBox.box.disabled = true;
