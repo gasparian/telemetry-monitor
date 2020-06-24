@@ -11,12 +11,13 @@ In order to work with custom-formatted data, change implementation of `parseData
 ### Controls  
  - `Choose file` - is for file uploading;  
  - `reset/play/stop` buttons are for animation of the finished ride (when the socket is closed);  
- - `Socket` button opens and closes web-socket connetction with the embedded server;  
- - Input fields needs to send commands via web-socket connection;  
- - Text area on the right is for server logs;  
+ - `Socket` button opens and closes web-socket connetction with the embedded server (see server address input in the middle);  
  - `Download` - is for downloading parsed data to the local machine;  
+ - `Upload` - to upload a `*.yaml` config file to the server;  
+ - use slider to choose a batch size for visualization;  
 
 ### To do:  
+ - refactor globs and constants (!);  
  - add ts compilation inside a docker;  
  - migrate to the typescript;  
 
@@ -38,9 +39,20 @@ In order to work with custom-formatted data, change implementation of `parseData
  - express: `npm init --yes` --> `npm i express`;  
  - nodemon: `npm i -g nodemon`;  
 
+Comile typescript code:  
+```
+tsc -p .
+```  
+
 Start server with auto-reloading:  
 ```
 nodemon app.js
+```  
+
+Or compile and run using npm scripts:  
+```
+npm run build
+npm run start
 ```  
 
 ### Running embedded-server "emulator"  
