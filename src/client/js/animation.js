@@ -20,7 +20,7 @@ export function drawPause(classInstance) {
                 t0 = null;
                 drawFrameFlag = false;
             } 
-            window.requestid = window.requestAnimationFrame(makeFrame);
+            window.myGlobs.requestid = window.requestAnimationFrame(makeFrame);
         }
     }
 
@@ -28,8 +28,9 @@ export function drawPause(classInstance) {
 }
 
 export function stopAnimation() {
-    if (window.requestid) {
-        window.cancelAnimationFrame(window.requestid);
+    if (window.myGlobs.requestid) {
+        window.cancelAnimationFrame(window.myGlobs.requestid);
+        window.myGlobs.requestid = undefined;
     }
 }
 

@@ -338,11 +338,13 @@ html, body {
     margin-right: 1%;
     border-radius: 10px;
     cursor: pointer;
-    background-color: #aaaaaa;
+    --downloadColor: #aaaaaa;
+    --downloadColorHover: #bbbbbb;
+    background-color: var(--downloadColor);
 }   
 
 #download:hover {
-    background-color: #bbbbbb;
+    background-color: var(--downloadColorHover);
 }
 
 #download-img {
