@@ -2,9 +2,10 @@ FROM node:10-alpine
 
 WORKDIR /src/app
 COPY . .
-RUN npm init --yes && \
-    npm install express
+
+RUN npm install 
+RUN npm run build
 
 EXPOSE 3000
-CMD [ "node", "./src/server/app.js" ]
+CMD [ "npm", "start" ]
 
