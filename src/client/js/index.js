@@ -18,6 +18,7 @@ window.myGlobs = {
             batchSize: 100, // initial animation batch size
             globTimeoutMs: 250,
             maxGraphLen: 100,
+            bufferMult: 10, // * batchSize --> buffer length
             stopFlag: false,
             rangeChanged: false,
             lastBatchFlag: false,

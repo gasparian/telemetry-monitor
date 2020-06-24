@@ -88,7 +88,7 @@ export class processDataFile {
 
         window.myGlobs.charts.prChart.addData(tsSlice, this.parsedData.pitch.slice(this.i, this.wEnd), 0);
         window.myGlobs.charts.prChart.addData([], this.parsedData.roll.slice(this.i, this.wEnd), 1);
-        drawMapPolyline(this.parsedData, this.i, this.wEnd, this.maxId);
+        drawMapPolyline(this.parsedData, this.i, this.wEnd, this.maxId, this.constructor.name);
         this.i = this.wEnd;
         if (this.i == this.maxId) {
             window.myGlobs.drawingFinished.value = true;
@@ -144,7 +144,7 @@ export class processStream {
     updateArr(measurement) { 
         if ( measurement.length > 0 ) {
             this.measurements.push(measurement);
-            if ( this.measurements.length == window.myGlobs.vars.batchSize * 2 + 1 ) {
+            if ( this.measurements.length == window.myGlobs.vars.batchSize * window.myGlobs.vars.bufferMult + 1 ) {
                 this.parseData();
             }
         }
@@ -157,11 +157,8 @@ export class processStream {
                 drawCone(this.parsedData.lon[0], this.parsedData.lat[0], false);
                 this.firstIter = false;
             }
-            this.wEnd = Math.min(this.i+window.myGlobs.vars.batchSize, this.maxId); 
+            this.wEnd = Math.min(this.i+window.myGlobs.vars.batchSize * Math.ceil(window.myGlobs.vars.bufferMult / 2), this.maxId); 
             if ( (this.i != this.maxId) ) {
-
-                console.log(this.i, this.wEnd, this.wEnd - this.i, this.maxId);
-
                 const tsSlice = this.parsedData.timestamp.slice(this.i, this.wEnd);
                 for ( const chart in window.myGlobs.charts ) {
                     if ( chart == "prChart" ) {
@@ -173,7 +170,7 @@ export class processStream {
                 window.myGlobs.charts.prChart.addData(tsSlice, this.parsedData.pitch.slice(this.i, this.wEnd), 0);
                 window.myGlobs.charts.prChart.addData([], this.parsedData.roll.slice(this.i, this.wEnd), 1);
                 // draw route on the map
-                drawMapPolyline(this.parsedData, this.i, this.wEnd, this.maxId);
+                drawMapPolyline(this.parsedData, this.i, this.wEnd, this.maxId, this.constructor.name);
                 this.i = this.wEnd;
             }
 
