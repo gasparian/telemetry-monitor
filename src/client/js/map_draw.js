@@ -53,7 +53,7 @@ export function drawMapPolyline(arr, start, end, maxId, constructorName) {
     if ( constructorName == "processDataFile" ) {
         let counter = 0;
         let posArr = [];
-        let thin = Math.max(2, Math.ceil(len / window.myGlobs.vars.thinDivisor));
+        let thin = Math.max(2, window.myGlobs.vars.mapThin);
         for (let i=start; i < end; i++) {
             if ( !((len-i) % thin) || (i == (end-1)) || (i == start) ) {
                 clon += arr.lon[i];
