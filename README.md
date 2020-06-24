@@ -17,8 +17,6 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Download` - is for downloading parsed data to the local machine;  
 
 ### To do:  
- - draw by timer or still by buffer length??;  
-
  - add ts compilation inside a docker;  
  - migrate to the typescript;  
 

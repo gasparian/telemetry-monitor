@@ -1,5 +1,5 @@
 import parseCsv from "./csv_parser.js";
-import { dataListener } from "./misc.js";
+import { dataListener, getCurrTime } from "./misc.js";
 import { drawMapPolyline, drawCone } from "./map_draw.js";
 import { drawPause } from "./animation.js";
 
@@ -141,11 +141,18 @@ export class processStream {
         this.measurements = [this.columns];
     }
 
+    startTimer() {
+        this.t0Timer = getCurrTime();
+        this.dt = 0;
+    }
+
     updateArr(measurement) { 
         if ( measurement.length > 0 ) {
             this.measurements.push(measurement);
-            if ( this.measurements.length == window.myGlobs.vars.batchSize * window.myGlobs.vars.bufferMult + 1 ) {
+            this.dt += getCurrTime() - this.t0Timer;
+            if ( this.dt >= window.myGlobs.vars.minDtMs ) {
                 this.parseData();
+                this.startTimer();
             }
         }
     };
@@ -157,7 +164,7 @@ export class processStream {
                 drawCone(this.parsedData.lon[0], this.parsedData.lat[0], false);
                 this.firstIter = false;
             }
-            this.wEnd = Math.min(this.i+window.myGlobs.vars.batchSize * Math.ceil(window.myGlobs.vars.bufferMult / 2), this.maxId); 
+            this.wEnd = Math.min(this.i+window.myGlobs.vars.batchSize, this.maxId); 
             if ( (this.i != this.maxId) ) {
                 const tsSlice = this.parsedData.timestamp.slice(this.i, this.wEnd);
                 for ( const chart in window.myGlobs.charts ) {
@@ -177,7 +184,7 @@ export class processStream {
             // check if we need to redraw graphs w/o `old` values
             // just take any chart to see its' length since they're all equal
             if ( (!window.myGlobs.buttons.checkBox.box.checked) ) {
-                let dropLen = window.myGlobs.charts.alt.chart.data.labels.length - window.myGlobs.vars.maxGraphLen;
+                let dropLen = window.myGlobs.charts.alt.chart.data.labels.length - window.myGlobs.vars.maxGraphBuffLen;
                 dropLen = (dropLen < 0) ? 0 : dropLen;
                 if ( (dropLen > 0) ) {
                     for ( const chart in window.myGlobs.charts ) {

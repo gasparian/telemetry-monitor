@@ -2,19 +2,22 @@ export function roundToPrecision(x, precision) {
     return Math.round((x + Number.EPSILON) * precision) / precision;
 }
 
+export function getCurrTime() {
+    const t = new Date();
+    return t.getTime();
+}
+
 export class Stopwatch {
     constructor() {
         this.reset();
     }
 
     start() {
-        let t = new Date();
-        this.t0 = t.getTime();
+        this.t0 = getCurrTime();
     };
 
     stop() {
-        let t = new Date();
-        this.t1 = t.getTime();
+        this.t1 = getCurrTime();
         this.dt += (this.t1 - this.t0) / 1000.0;
     };
 

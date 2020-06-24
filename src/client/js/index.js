@@ -11,14 +11,14 @@ import { drawPause, switchCoverSpin, changeBtnStatus,
 window.myGlobs = {
         // position accuracy multiplier
         vars: {
-            covarianceMult: 10, // GNSS uncertainty multiplier
-            mapZoom: 18, 
-            thinDivisor: 20, // for maps drawing
-            globThin: 10,
+            covarianceMult: 10, // GNSS uncertainty multiplier for map visualization
+            mapZoom: 18,
+            mapThin: 10, // take every Nth point to draw on the map
+            globThin: 10, // thinning for uploaded ride parsing
             batchSize: 100, // initial animation batch size
-            globTimeoutMs: 250,
-            maxGraphLen: 100,
-            bufferMult: 10, // * batchSize --> buffer length
+            globTimeoutMs: 100, // animation timeout
+            minDtMs: 500, // conflicts with buffer accumulation
+            maxGraphBuffLen: 1000, // n ticks to keep on graphs
             stopFlag: false,
             rangeChanged: false,
             lastBatchFlag: false,
@@ -78,6 +78,8 @@ window.myGlobs = {
 window.myGlobs.fileProcessor = new processDataFile();
 window.myGlobs.streamProcessor = new processStream();
 
+/*---------------------------------------------------------------------------------------------------*/
+
 window.myGlobs.buttons.fileInputBtn.onclick = function(e) {
     window.myGlobs.io.fileInput.click();
 };
@@ -85,7 +87,7 @@ window.myGlobs.buttons.fileInputBtn.onclick = function(e) {
 // freq. input
 let freqValues = [10,20,50,100,200];
 window.myGlobs.buttons.range.oninput = function(e) {
-    window.myGlobs.io.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} n`;
+    window.myGlobs.io.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} ticks`;
     window.myGlobs.vars.batchSize = freqValues[window.myGlobs.buttons.range.value];
     window.myGlobs.io.fileInput.value = ""; // to be able to reopen the file
 };
@@ -227,6 +229,8 @@ function onStreamClosed() {
             // copy collected data to the fileprocessor so it "can be played"
             window.myGlobs.fileProcessor.parsedData = window.myGlobs.streamProcessor.parsedData;
         }
+        // hack: free the streamProcess object after a second (give a time to animation)
+        setTimeout(() => window.myGlobs.streamProcessor.initVars(), 1000);
     }
     changeBtnStatus(window.myGlobs.buttons.playBtn, "playColor", false, [`#aaaaaa`, `#bbbbbb`]); // change play button color back
     if ( playClicked ) {
@@ -282,6 +286,7 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                         if ( !startStreamFlag ) {
                             clearDrawing();
                             window.myGlobs.streamProcessor.initVars(inMessage);
+                            window.myGlobs.streamProcessor.startTimer();
                         }
                         startStreamFlag = true;
                         window.myGlobs.streamProcessor.updateArr(inMessage);
