@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
     try
     {
         // Check command line arguments.
-        if (argc != 3)
+        if (argc < 3)
         {
             std::cerr <<
                 "Usage: websocket-server-sync <address> <port>\n" <<
@@ -32,7 +32,13 @@ int main(int argc, char* argv[])
         }
         auto const address = boost::asio::ip::make_address(argv[1]);
         auto const port = static_cast<unsigned short>(std::atoi(argv[2]));
-        const std::string path = "../../data/sample.csv";
+        std::string path = "../../data/sample.csv";
+        if ( argc > 3 ) {
+            if ( (std::string)argv[3] == "long" ) {
+                path = "../../data/2011_09_30_drive_0028_extract.csv";
+            }
+        }
+        std::cout << path << std::endl;
 
         // The io_context is required for all I/O
         boost::asio::io_context ioc{1};

@@ -43,30 +43,37 @@ export function drawPosPolyLine(arr, acc) {
     window.myGlobs.maps.graphicsLayer.add(polylineGraphic);
 }
 
-export function drawMapPolyline(arr, start, end, maxId) {
+export function drawMapPolyline(arr, start, end, maxId, constructorName) {
     end = Math.min(maxId, end);
-    let counter = 0;
+    const len = end - start;
+    let newArr = [];
     let clon = 0;
     let clat = 0;
-    let len = end - start;
-    let newArr = [], posArr = [];
-    let thin = Math.max(2, Math.ceil(len / window.myGlobs.vars.thinDivisor));
-    for (let i=start; i < end; i++) {
-        if ( !((len-i) % thin) || (i == (end-1)) || (i == start) ) {
-            clon += arr.lon[i];
-            clat += arr.lat[i];
-            newArr.push([arr.lon[i], arr.lat[i]]);
-            posArr.push(arr.pos_accuracy[i]);
-            counter++;
+
+    if ( constructorName == "processDataFile" ) {
+        let counter = 0;
+        let posArr = [];
+        let thin = Math.max(2, Math.ceil(len / window.myGlobs.vars.thinDivisor));
+        for (let i=start; i < end; i++) {
+            if ( !((len-i) % thin) || (i == (end-1)) || (i == start) ) {
+                clon += arr.lon[i];
+                clat += arr.lat[i];
+                newArr.push([arr.lon[i], arr.lat[i]]);
+                posArr.push(arr.pos_accuracy[i]);
+                counter++;
+            }
         }
-    }
-    clon /= counter;
-    clat /= counter;
-
-    console.log(thin, counter);
-
-    for (let i=1; i < newArr.length; i++) {
-        drawPosPolyLine(newArr.slice(i-1, i+1), posArr[i]);
+        clon /= counter;
+        clat /= counter;
+        for (let i=1; i < newArr.length; i++) {
+            drawPosPolyLine(newArr.slice(i-1, i+1), posArr[i]);
+        }
+    } else if ( constructorName == "processStream" ) {
+        // make it simple: just draw line between first and last points
+        newArr = [[arr.lon[start], arr.lat[start]], [arr.lon[end-1], arr.lat[end-1]]];
+        clon = 0.5 * (arr.lon[start] + arr.lon[end-1]);
+        clat = 0.5 * (arr.lat[start] + arr.lat[end-1]);
+        drawPosPolyLine(newArr, arr.pos_accuracy[end-1]);
     }
 
     drawPolyLine(newArr, clon, clat);
