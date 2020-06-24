@@ -18,7 +18,6 @@ In order to work with custom-formatted data, change implementation of `parseData
 
 ### To do:  
  - refactor globs and constants (!);  
- - add ts compilation inside a docker;  
  - migrate to the typescript;  
 
  - make data parser for custom data;  
