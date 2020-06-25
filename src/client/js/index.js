@@ -18,7 +18,7 @@ window.myGlobs = {
             batchSize: 100, // initial animation batch size
             globTimeoutMs: 100, // animation timeout
             minDtMs: 500, // conflicts with buffer accumulation
-            maxGraphBuffLen: 1000, // n ticks to keep on graphs
+            maxGraphBuffLen: 10000, // n ticks to keep on graphs
             stopFlag: false,
             rangeChanged: false,
             lastBatchFlag: false,
@@ -89,6 +89,7 @@ let freqValues = [10,20,50,100,200];
 window.myGlobs.buttons.range.oninput = function(e) {
     window.myGlobs.io.rangeVal.innerHTML = `${freqValues[window.myGlobs.buttons.range.value]} ticks`;
     window.myGlobs.vars.batchSize = freqValues[window.myGlobs.buttons.range.value];
+    window.myGlobs.vars.maxGraphBuffLen = window.myGlobs.vars.batchSize * 5;
     window.myGlobs.io.fileInput.value = ""; // to be able to reopen the file
 };
 
