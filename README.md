@@ -17,13 +17,18 @@ In order to work with custom-formatted data, change implementation of `parseData
  - use slider to choose a batch size for visualization;  
 
 ### To do:  
- - refactor globs and constants (!);  
- - migrate to the typescript;  
+ - draw in stream fashion even if the readings accumulation has been activated (socket mode);  
+ - migrate to the typescript:  
+     - ts + parsel / webpack ??;  
+ - refactor globs and constants (!):  
+     - split global state object on render part and data part;  
+     - add events listeners on global state values;  
+     - split code into data modification and rendering parts;  
+     - pass global objects as arguments into all functions;  
 
  - make data parser for custom data;  
- - migrate to React;  
 
- - add configurable plots (somth like plus sign);  
+ - add configurable plots (somth like plus sign...);  
  - charts.js --> D3.js (?);  
  - work with graphs' zooming/panning;  
 

@@ -183,15 +183,13 @@ export class processStream {
 
             // check if we need to redraw graphs w/o `old` values
             // just take any chart to see its' length since they're all equal
-            if ( (!window.myGlobs.buttons.checkBox.box.checked) ) {
-                let dropLen = window.myGlobs.charts.alt.chart.data.labels.length - window.myGlobs.vars.maxGraphBuffLen;
-                dropLen = (dropLen < 0) ? 0 : dropLen;
-                if ( (dropLen > 0) ) {
-                    for ( const chart in window.myGlobs.charts ) {
-                        window.myGlobs.charts[chart].removeData(0, dropLen);
-                    }
-                }                
-            }
+            let dropLen = window.myGlobs.charts.alt.chart.data.labels.length - window.myGlobs.vars.maxGraphBuffLen;
+            dropLen = (dropLen < 0) ? 0 : dropLen;
+            if ( (dropLen > 0) ) {
+                for ( const chart in window.myGlobs.charts ) {
+                    window.myGlobs.charts[chart].removeData(0, dropLen);
+                }
+            }                
         }
     }
 };
