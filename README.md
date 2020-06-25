@@ -17,9 +17,10 @@ In order to work with custom-formatted data, change implementation of `parseData
  - use slider to choose a batch size for visualization;  
 
 ### To do:  
- - draw in stream fashion even if the readings accumulation has been activated (socket mode);  
  - migrate to the typescript:  
-     - ts + parsel / webpack ??;  
+     - refoctor all js files as ts;  
+     - add webpack and build project finally;  
+ - draw in stream fashion even if the readings accumulation has been activated (socket mode);  
  - refactor globs and constants (!):  
      - split global state object on render part and data part;  
      - add events listeners on global state values;  
