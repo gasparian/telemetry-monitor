@@ -345,7 +345,7 @@ window.myGlobs.io.configFileInput.onchange = function(e) {
     const fname = window.myGlobs.io.configFileInput.value;
     const wsIsOpen = checkWsIsOpen();
     if (fname && wsIsOpen) {
-        const fileExtension = fname.split('.').pop()
+        const fileExtension = fname.split('.').pop();
         if ( (fileExtension === "yaml") || (fileExtension === "yml") ) {
             sendFileWebSocket(window.myGlobs.io.configFileInput.files[0]);
         } else {
