@@ -1,19 +1,20 @@
-export function drawPause(classInstance) {
+export function drawPause(classInstance) { // make an explicit arguments?
     let t0 = null;
     let progress = null;
     let drawFrameFlag = false;
     let batchSize = window.myGlobs.vars.batchSize;
     let timeoutMs = window.myGlobs.vars.globTimeoutMs;
+    let processor = window.myGlobs[classInstance];
 
-    function makeFrame() {
-        if ( (window.myGlobs[classInstance].i < window.myGlobs[classInstance].maxId) ) {
+    function makeFrame(frameTime) {
+        if ( (processor.i < processor.maxId) ) {
             if (!t0) {
-                t0 = new Date();
+                t0 = frameTime;
             }
-            progress = (new Date()) - t0;
+            progress = frameTime - t0;
             if (!drawFrameFlag) {
-                window.myGlobs[classInstance].batchSize = batchSize;
-                window.myGlobs[classInstance].iterDraw();
+                processor.batchSize = batchSize;
+                processor.iterDraw();
                 drawFrameFlag = true;
             }
             if (progress >= timeoutMs) {

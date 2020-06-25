@@ -17,8 +17,8 @@ window.myGlobs = {
             globThin: 10, // thinning for uploaded ride parsing
             batchSize: 100, // initial animation batch size
             globTimeoutMs: 100, // animation timeout
-            minDtMs: 500, // conflicts with buffer accumulation
-            maxGraphBuffLen: 10000, // n ticks to keep on graphs
+            minDtMs: 500, // time to accumulate data from web-socket, ms
+            maxGraphBuffLen: 500, // n ticks to keep on graphs
             stopFlag: false,
             rangeChanged: false,
             lastBatchFlag: false,
@@ -77,6 +77,7 @@ window.myGlobs = {
 // declare data processors
 window.myGlobs.fileProcessor = new processDataFile();
 window.myGlobs.streamProcessor = new processStream();
+// split on interfaces?
 
 /*---------------------------------------------------------------------------------------------------*/
 
