@@ -1,12 +1,16 @@
 #pragma once
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/asio/ip/tcp.hpp>
+
+#include <chrono>
+#include <thread>
 #include <string>
 #include <thread>
 #include <fstream>
 #include <iostream>
 #include <pthread.h>
+
+#include <boost/beast/core.hpp>
+#include <boost/beast/websocket.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
 using tcp = boost::asio::ip::tcp;               // from <boost/asio/ip/tcp.hpp>
 namespace websocket = boost::beast::websocket;  // from <boost/beast/websocket.hpp>
@@ -29,7 +33,7 @@ struct File {
     }
 };
 
-void do_session(tcp::socket& socket, std::string& path) {
+void do_session(tcp::socket& socket, std::string& path, int sleep) {
     try {
         // read a `demo` file
         File file(path);
@@ -55,6 +59,8 @@ void do_session(tcp::socket& socket, std::string& path) {
                 // block until the whole file will be transmitted
                 while ( std::getline(file.input, output, '\n') ) {
                     ws.write(boost::asio::buffer(output));
+                    // sleep 
+                    std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
                 };
             } else {
                 // Echo the message back

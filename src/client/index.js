@@ -21,7 +21,6 @@ window.myGlobs = {
             maxGraphBuffLen: 500, // n ticks to keep on graphs
             stopFlag: false,
             rangeChanged: false,
-            lastBatchFlag: false,
             requestid: undefined
         },
 
@@ -222,7 +221,6 @@ window.myGlobs.buttons.stopBtn.onclick = function(e) {
 
 function onStreamClosed() {
     if ( window.myGlobs.streamProcessor.maxId > 1 ) { 
-        window.myGlobs.vars.lastBatchFlag = true;
         // draw final points and cone if the data was sent
         window.myGlobs.streamProcessor.parseData(); // initiates drawPause function
         drawCone(window.myGlobs.streamProcessor.parsedData.lon[window.myGlobs.streamProcessor.maxId-1], 
@@ -257,7 +255,6 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                 };
 
                 window.myGlobs.io.ws.addEventListener("open", function(e) {
-                    window.myGlobs.vars.lastBatchFlag = false;
                     playClicked = false;
                     // change the buttons state
                     changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", false, [`#aaaaaa`, `#bbbbbb`]);
@@ -268,18 +265,6 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                     changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#f1f1f1`, `#f1f1f1`]);
                     document.getElementById("play-button-img").src = "./img/play-bold.png";
                     stopAnimation();
-                });
-                
-                window.myGlobs.io.ws.addEventListener("close", function(e) {
-                    onStreamClosed();
-                    switchInputBtnStatus(false);
-                    serverBtnState = false;
-                    startStreamFlag = false;
-                    changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", true, [`#888`, `#888`]);
-                    changeBtnStatus(window.myGlobs.buttons.downloadBtn, "downloadColor", false, [`#aaaaaa`, `#bbbbbb`]);
-                    changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#888`, `#888`]);
-                    changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#888`, `#888`]);
-                    window.myGlobs.buttons.checkBox.box.disabled = true;
                 });
                 
                 window.myGlobs.io.ws.addEventListener("message", function(e) {
@@ -303,8 +288,18 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
             switchInputBtnStatus(true);
         } else {
             if (window.myGlobs.io.ws.OPEN) {
-                window.myGlobs.io.ws.close();
+                window.myGlobs.io.ws.close(); // async closing
                 window.myGlobs.io.ws = {};
+
+                onStreamClosed();
+                switchInputBtnStatus(false);
+                serverBtnState = false;
+                startStreamFlag = false;
+                changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", true, [`#888`, `#888`]);
+                changeBtnStatus(window.myGlobs.buttons.downloadBtn, "downloadColor", false, [`#aaaaaa`, `#bbbbbb`]);
+                changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#888`, `#888`]);
+                changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#888`, `#888`]);
+                window.myGlobs.buttons.checkBox.box.disabled = true;
             }
             switchInputBtnStatus(false);
             startStreamFlag = false;
