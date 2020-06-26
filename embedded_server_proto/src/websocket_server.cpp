@@ -40,6 +40,12 @@ int main(int argc, char* argv[])
         }
         std::cout << path << std::endl;
 
+        // sleep time
+        int sleep = 10;
+        if ( argc > 4 ) {
+            sleep = atoi(argv[4]);
+        }
+
         // The io_context is required for all I/O
         boost::asio::io_context ioc{1};
 
@@ -57,7 +63,7 @@ int main(int argc, char* argv[])
             // Launch the session, transferring ownership of the socket
             std::thread{std::bind(
                 &do_session, 
-                std::move(socket), path)}.detach();
+                std::move(socket), path, sleep)}.detach();
         }
     }
     catch (const std::exception& e)
