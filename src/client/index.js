@@ -238,6 +238,15 @@ function onStreamClosed() {
         document.getElementById("play-button-img").src = "./img/play-bold.png";
     }
     window.myGlobs.vars.stopFlag = false;
+
+    switchInputBtnStatus(false);
+    serverBtnState = false;
+    startStreamFlag = false;
+    changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", true, [`#888`, `#888`]);
+    changeBtnStatus(window.myGlobs.buttons.downloadBtn, "downloadColor", false, [`#aaaaaa`, `#bbbbbb`]);
+    changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#888`, `#888`]);
+    changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#888`, `#888`]);
+    window.myGlobs.buttons.checkBox.box.disabled = true;
 }
 
 let serverBtnState = false;
@@ -252,6 +261,7 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
 
                 window.myGlobs.io.ws.onerror = function(event) {
                     alert("WebSocket error observed: ", event);
+                    onStreamClosed();
                 };
 
                 window.myGlobs.io.ws.addEventListener("open", function(e) {
@@ -292,14 +302,6 @@ window.myGlobs.buttons.serverBtn.onclick = function(e) {
                 window.myGlobs.io.ws = {};
 
                 onStreamClosed();
-                switchInputBtnStatus(false);
-                serverBtnState = false;
-                startStreamFlag = false;
-                changeBtnStatus(window.myGlobs.buttons.uploadConfigBtn, "uploadColor", true, [`#888`, `#888`]);
-                changeBtnStatus(window.myGlobs.buttons.downloadBtn, "downloadColor", false, [`#aaaaaa`, `#bbbbbb`]);
-                changeBtnStatus(window.myGlobs.buttons.checkBox.text, "checkColor", false, [`#888`, `#888`]);
-                changeBtnStatus(window.myGlobs.buttons.checkBox.checkmark, "checkColor", false, [`#888`, `#888`]);
-                window.myGlobs.buttons.checkBox.box.disabled = true;
             }
             switchInputBtnStatus(false);
             startStreamFlag = false;
