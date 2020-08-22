@@ -4,16 +4,16 @@ import path from "path";
 const app: express.Application = express();
 const port: number = 3000;
 
-const dirName: string = __dirname.split("/").slice(0, -1).join("/") + '/client';
-app.use(express.static(dirName));
+const pucblicName: string = __dirname.split("/").slice(0, -2).join("/") + '/public';
+app.use(express.static(pucblicName));
 
 app.get("/", function(req: express.Request, res: express.Response) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Content-Type", "text/html");
 
-    console.log(path.join(dirName, "/index.html"));
+    console.log(path.join(pucblicName, "/index.html"));
 
-    res.sendFile(path.join(dirName, "/index.html"));
+    res.sendFile(path.join(pucblicName, "/index.html"));
     res.status(200);
     res.end();
 });

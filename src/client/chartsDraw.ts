@@ -1,6 +1,11 @@
+import Chart from "chart.js"
+
 export default class myChart {
+    chart: Chart
+    
     constructor(ylabel="Y", chartName='alt-chart', title="Altitude") {
-        let ctx = document.getElementById(chartName).getContext('2d');
+        const canvas = <HTMLCanvasElement> document.getElementById(chartName)
+        const ctx: CanvasRenderingContext2D = canvas.getContext('2d');
         this.chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -15,10 +20,10 @@ export default class myChart {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                // maintainAspectRatio: true,
                 animation: {
                     duration: 0,
-                    lazy: false
+                    // lazy: false
                 },
                 legend: {
                     display: true,
@@ -71,49 +76,23 @@ export default class myChart {
                     fontColor: 'rgba(200, 200, 200, 1)'
                 },
                 elements: {
-                    line: {
+                    line: { 
                         tension: 0
                     },
                     point: {
                         radius: 0
                     }
                 },
-                plugins: {
-                    zoom: {
-                        pan: {
-                            // Boolean to enable panning
-                            enabled: true,
-                            mode: 'xy',
-                            rangeMin: {
-                                // Format of min pan range depends on scale type
-                                x: null,
-                                y: null
-                            },
-                            rangeMax: {
-                                // Format of max pan range depends on scale type
-                                x: null,
-                                y: null
-                            },
-                            // On category scale, factor of pan velocity
-                            speed: 1000, // ??
-                            // Minimal pan distance required before actually applying pan
-                            threshold: 5 // ??
-                        },
-                        zoom: {
-                            enabled: true,
-                            // drag: {animationDuration: 500},
-                            drag: false,
-                            mode: 'x',
-                            speed: 1000, // ??
-                            sensitivity: 0.00001 // ??
-                        }
-                    }
+                hover: {
+                    mode: "nearest",
+                    intersect: false,
+                    animationDuration: 250
                 }
             }
         });
     }
 
-    removeAll() {
+    removeAll(): void {
         this.chart.data.labels = [];
         this.chart.data.datasets[0].data = [];
         if ( this.chart.data.datasets.length == 2 ) {
@@ -122,7 +101,7 @@ export default class myChart {
         this.chart.update();
     };
 
-    removeData(start, len) {
+    removeData(start: number, len: number): void {
         this.chart.data.labels.splice(start, len);
         this.chart.data.datasets.forEach((dataset) => {
             dataset.data.splice(start, len)
@@ -130,7 +109,7 @@ export default class myChart {
         this.chart.update();
     };
 
-    addData(labels, data, num=0) {
+    addData(labels: number[], data: number[], num=0): void {
         labels.forEach((label) => {
             this.chart.data.labels.push(label);
         });
@@ -140,7 +119,7 @@ export default class myChart {
         this.chart.update();
     };
 
-    drawPr(ts, pArr, rArr) {
+    drawPr(ts: number[], pArr: number[], rArr: number[]): void {
         this.chart.data.labels = ts;
         this.chart.data.datasets = [
             {
@@ -161,7 +140,7 @@ export default class myChart {
         this.chart.update();
     };
 
-    drawSingle(ts, arr) {
+    drawSingle(ts: number[], arr: number[]): void {
         this.chart.data.labels = ts;
         this.chart.data.datasets[0].data = arr;
         this.chart.update();

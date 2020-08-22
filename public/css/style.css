@@ -11,7 +11,7 @@
     width: 20px;
 }
 
-    /* Track */
+/* Track */
 ::-webkit-scrollbar-track {
     background: #f1f1f1; 
 }
@@ -28,7 +28,7 @@
 
 /* ------------------------------------------------------------------------------- */
 
-html, body {
+html {
     position: relative;
     height: 100%;
     width: 100%;
@@ -36,6 +36,15 @@ html, body {
     padding: 0;
     min-width: 1250px;
     overflow-y: hidden;
+}
+
+body {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 
 #map-view {
@@ -46,6 +55,7 @@ html, body {
     left: 0;
     padding: 0;
     margin: 0; 
+    overflow: hidden;
 }
 
 .charts-block {
@@ -63,8 +73,8 @@ html, body {
 .charts {
     position: relative;
     margin-left: 5px;
-    height: 90%;
-    height: calc(100%-120px);
+    height: 85%;
+    height: calc(100%-130px);
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -72,29 +82,27 @@ html, body {
 .control-block {
     position: relative;
     height: 100px;
-    width: 94%;
-    padding-bottom: 10px;
-    padding-left: 7%;
-    margin: 0;
+    width: 95%;
+    padding-bottom: 20px;
+    margin-left: 4%;
 }
 
 .buttons-block {
     position: relative;
     float: left;
-    width: 25%;
+    width: 30%;
     height: 100%;
 }
 
 #upload-file {
     height: 50%;
     width: 100%;
-    margin-bottom: 1%;
+    margin-bottom: 3%;
 }
 #inp-file-button {
     position: relative;
     height: 100%;
-    width: 100%;
-    margin-right: 1%;
+    width: 98.5%;
     
     color: black; 
     --inpBtnColor: #009578;
@@ -112,24 +120,16 @@ html, body {
     background-color: var(--inpBtnColorHover);
 }
 
-#left-buttons {
-    position: relative;
-    width: auto;
-    height: 50%;
-    text-align: center;
-    justify-content: space-between;
-    display: flex;
-}
-
 .player-buttons {
+    height: 48%;
+    width: 48%;
     position: relative;
-    margin: 1%;
+    display: inline-block;
     --playColor: #aaaaaa;
     --playColorHover: #bbbbbb;
     background-color: var(--playColor);
     border: 1px solid #000;
-    border-radius: 10%;
-    cursor: pointer;
+    border-radius: 10px;
 }
 
 .button-img {
@@ -138,45 +138,32 @@ html, body {
     margin-right: auto;
 }
 
-#reset-img {
-    width: 50%;
-}
-
 #play-button-img {
-    width: 45%;
+    max-width: 30%;
 }
 
 #stop-button-img {
-    width: 40%;
+    max-width: 25%;
 }
 
 .player-buttons:hover { 
     background-color: var(--playColorHover);
 }
 
-#server-command-block {
+#input-middle-block {
     position: relative;
-    top: 2%;
-    width: 70%; 
+    width: 38%; 
     height: 100%;
-    float: left;
+    display: inline-block;
+    margin-left: 1%;
+    margin-top: 1%;
 }
 
-#server-input {
-    height: 50%;
-    width: 100%;
-}
-
-.server-input-field {
+#server-address-inp {
     position: relative;
     float: left;
-    width: 53%;
-    height: 35%;
-
-    margin-left: 2%;
-    margin-right: 1%;
-    margin-top: 1%;
-    margin-bottom: 1%;
+    width: 92%;
+    height: 15%;
 
     background-color: #f1f1f1;
     border-radius: 5px;
@@ -188,15 +175,10 @@ html, body {
 .container {
     position: relative;
     float: left;
-    width: 40%;
+    width: 90%;
     height: 35%;
-
-    padding-left: 20px;
-    margin-left: 2%;
-    margin-right: 1%;
-    margin-top: 1.5%;
-    margin-bottom: 0;
-
+    padding-left: 10%;
+    margin-top: 5%;
     cursor: pointer;
     --checkColor: #888;
     color: var(--checkColor);
@@ -248,18 +230,14 @@ html, body {
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
 }
-
 /* ------- Checkbox ------- */
 
 #server-start-button {
     position: relative;
-    /* float: right; */
     display: inline-block;
-    width: 40%;
-    height: 95%;
-    /* margin-right: 1%; */
-    /* margin-right: 0; */
-    margin-left: 1.5%;
+    width: 98.5%;
+    height: 50%;
+    margin-bottom: 3%;
 
     color: black; 
     --sendColor: #009578;
@@ -277,23 +255,21 @@ html, body {
     background-color: var(--sendColorHover);
 }
 
-#freq-input-download {
+#socket-block {
     position: relative;
-    height: 50%;
-    width: 100%;
-    overflow: hidden;
-    display: flex;
+    height: 100%;
+    width: 30%;
+    float: right;
 }
 
 #freq-input {
     position: relative;
-    float: left;
-    margin-left: 2%;
-    width: 58%;
-    top: 30%; 
+    display: inline-block;
+    width: 98%;
     padding: 0;
+    margin: 0;
 }
-        
+
 #range-freq {
     width: 65%;
     -webkit-appearance: none;
@@ -320,22 +296,20 @@ html, body {
 }
         
 #range-output {
-    display: inline-block;
-    width: 28%;
+    float: right;
+    width: 30%;
     color: #f1f1f1;
-    margin-top: 0.5%;
+    margin-top: 1%;
     font-size: 14px;
     padding: 0;
 }
 
 #download {
-    height: 90%;
+    height: 48%;
+    width: 48%;
     position: relative;
     display: inline-block;
     border: 1px solid #000;
-    /* margin-top: 1%; */
-    width: 20%;
-    margin-right: 1%;
     border-radius: 10px;
     cursor: pointer;
     --downloadColor: #aaaaaa;
@@ -353,13 +327,11 @@ html, body {
 }
 
 #upload-config {
-    height: 90%;
+    height: 48%;
+    width: 48%;
     position: relative;
     display: inline-block;
     border: 1px solid #000;
-    /* margin-top: 1%; */
-    width: 20%;
-    margin-right: 1%;
     border-radius: 10px;
     cursor: pointer;
     --uploadColor: #888;
@@ -376,27 +348,6 @@ html, body {
     width: 30%;
 }
 
-#server-log-block {
-    position: relative;
-    display: inline-block;
-    width: 37.5%;
-    height: 95%;
-    top: 2%;
-    font-size: 12px;
-}
-
-#log {
-    width: 93.5%;
-    height: 100%;
-    margin-left: 1.5%;
-    background-color: #f1f1f1;
-    border-radius: 5px;
-    resize: none;
-    overflow: hidden;
-    white-space: pre;
-    overflow-wrap: normal;
-}
-
 #cover-spin {
     position: fixed;
     width: 100%;
@@ -410,32 +361,6 @@ html, body {
 }
 
 /* ------------------------------------------------------------------------------- */
-
-/* @media screen and (max-width: 1260px) {
-    body { 
-        height: 100vh;
-        width: 1260px;
-        overflow-x: scroll;
-    }
-} */
-
-/* @media screen and (max-width: 1260px) and (max-height: 600px) {
-    body { 
-        height: 600px;
-        width: 1260px;
-        overflow-x: scroll;
-        overflow-y: scroll;
-    }
-    .esri-view {
-        position: absolute;
-        height: 600px;
-        width: 1260 * 0.55;
-        left: 0px;
-        top: 0px;
-        padding: 0;
-        margin: 0;
-    }    
-} */
 
 @-webkit-keyframes spin {
     from {-webkit-transform:rotate(0deg);}

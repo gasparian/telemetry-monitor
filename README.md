@@ -10,57 +10,31 @@ In order to work with custom-formatted data, change implementation of `parseData
 
 ### Controls  
  - `Choose file` - is for file uploading;  
- - `reset/play/stop` buttons are for animation of the finished ride (when the socket is closed);  
+ - `play/stop` buttons are for animation of the finished ride (when the socket is closed);  
  - `Socket` button opens and closes web-socket connetction with the embedded server (see server address input in the middle);  
  - `Download` - is for downloading parsed data to the local machine;  
  - `Upload` - to upload a `*.yaml` config file to the server;  
  - use slider to choose a batch size for visualization;  
 
 ### To do:  
- - migrate to the typescript:  
-     - refoctor all js files as ts;  
-     - add webpack and build project finally;  
- - draw in stream fashion even if the readings accumulation has been activated (socket mode);  
- - refactor globs and constants (!):  
-     - split global state object on render part and data part;  
-     - add events listeners on global state values;  
-     - split code into data modification and rendering parts;  
-     - pass global objects as arguments into all functions;  
-
- - make data parser for custom data;  
-
- - add configurable plots (somth like plus sign...);  
+ - fix classes and ids mess in layout and styles;  
+ - make data parser for custom data --> look at the processing from ins repo;  
+ - add configurable plots (smth like plus sign...) == components?;  
  - charts.js --> D3.js (?);  
- - work with graphs' zooming/panning;  
-
-### Libs / APIs  
- - ArcGIS;  
- - charts.js;  
- - boost: asio + beast;  
+ - work with graphs' zooming/panning - smth wrong on large files;  
 
 ### Running client locally  
- Install:  
- - node;  
- - express: `npm init --yes` --> `npm i express`;  
- - nodemon: `npm i -g nodemon`;  
-
-Comile typescript code:  
+Install dependencies:  
 ```
-tsc -p .
+npm run install
+```  
+Make a client bundle via webpack and run the server:  
+```
+npm run wp-dev  
+npm run up-server  
 ```  
 
-Start server with auto-reloading:  
-```
-nodemon app.js
-```  
-
-Or compile and run using npm scripts:  
-```
-npm run build
-npm run start
-```  
-
-### Running embedded-server "emulator"  
+### Embedded-server "emulator"  
 
 Remove previous boost version:  
 ```

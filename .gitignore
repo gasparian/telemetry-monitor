@@ -3,3 +3,5 @@
 !/data/sample.csv
 /embedded_server_proto/build/
 .vscode
+*.js
+!/public/bundle.js

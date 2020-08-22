@@ -1,13 +1,19 @@
-export function roundToPrecision(x, precision) {
+import {IIoState} from "./IGlobalState"
+
+export function roundToPrecision(x: number, precision: number): number {
     return Math.round((x + Number.EPSILON) * precision) / precision;
 }
 
-export function getCurrTime() {
-    const t = new Date();
+export function getCurrTime(): number {
+    const t: Date = new Date();
     return t.getTime();
 }
 
 export class Stopwatch {
+    t0: number
+    t1: number
+    dt: number
+
     constructor() {
         this.reset();
     }
@@ -27,34 +33,37 @@ export class Stopwatch {
         this.dt = 0;
     };
 
-    get duration() {
+    get duration(): number {
         return this.dt;
     }
 }
 
 export class dataListener {
-    constructor(initVal) {
+    valInternal: any
+
+
+    constructor(initVal: any) {
        this.valInternal = initVal;
     }
 
-    valListener(val) {};
+    valListener(val: any) {};
 
-    registerListener(listener) {
+    registerListener(listener: (val: any) => void) {
         this.valListener = listener;
     };
 
-    set value(val) {
+    set value(val: any) {
       this.valInternal = val;
       this.valListener(val);
     };
 
-    get value() {
+    get value(): any {
       return this.valInternal;
     };
 };
 
-export function getFormattedTime() {
-    const today = new Date();
+export function getFormattedTime(): string {
+    const today: Date = new Date();
     const dateArr = [
         today.getFullYear(), today.getMonth() + 1, today.getDate(),
         today.getHours(), today.getMinutes(), today.getSeconds()
@@ -62,12 +71,10 @@ export function getFormattedTime() {
     return dateArr.join("-");
 }
 
-export function updateTextArea(text) {
-    window.myGlobs.io.serverLogOutput.value += text + "\n";
-    window.myGlobs.io.serverLogOutput.scrollTop = window.myGlobs.io.serverLogOutput.scrollHeight;
-}
-
-export function checkWsIsOpen() {
-    const wsIsOpen = (window.myGlobs.io.ws.readyState) && (window.myGlobs.io.ws.readyState == window.myGlobs.io.ws.OPEN);
-    return wsIsOpen;
+export function checkWsIsOpen(io: IIoState): boolean {
+    if (io.ws instanceof WebSocket) {
+        const wsIsOpen: boolean = (io.ws.readyState) && (io.ws.readyState == io.ws.OPEN);
+        return wsIsOpen
+    }
+    return false
 }
