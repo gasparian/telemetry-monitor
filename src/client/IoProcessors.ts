@@ -22,6 +22,8 @@ export function onStreamClosed(state: IGlobalState) {
         if ( state.buttons.checkBox.box.checked ) {
             // copy collected data to the fileprocessor so it "can be played"
             state.dataProcessors.fileProcessor.parsedData = state.dataProcessors.streamProcessor.parsedData;
+        } else {
+            state.dataProcessors.fileProcessor.parsedData = null
         }
         // hack: free the streamProcess object after a second (give a time to animation)
         // setTimeout(() => state.dataProcessors.streamProcessor.initVars(), 1000);

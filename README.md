@@ -17,11 +17,14 @@ In order to work with custom-formatted data, change implementation of `parseData
  - use slider to choose a batch size for visualization;  
 
 ### To do:  
- - fix classes and ids mess in layout and styles;  
- - make data parser for custom data --> look at the processing from ins repo;  
- - add configurable plots (smth like plus sign...) == components?;  
- - charts.js --> D3.js (?);  
- - work with graphs' zooming/panning - smth wrong on large files;  
+ - First order:  
+     - make data parser for custom data --> look at the processing from `ins` repo;  
+ - Second order:  
+     - fix small delay at start of data transfer through web-socket;  
+     - fix classes and ids mess in layout and styles;  
+     - work with graphs' zooming/panning - smth wrong on large files;  
+     - add configurable plots (smth like plus sign...) == components?;  
+     - charts.js --> D3.js (?);  
 
 ### Running client locally  
 Install dependencies:  
