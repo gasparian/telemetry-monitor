@@ -1,6 +1,7 @@
 <img src="https://travis-ci.com/gasparian/telemetry_monitor.svg?branch=master"/>  
 https://gasparian.github.io/telemetry_monitor/public/  
 
+
 ***Disclaimer:***  
 *All the docker-related stuff are here only for running the code locally in a more convenient way. A demo by the link a bove - is just static files served via github pages*  
 
