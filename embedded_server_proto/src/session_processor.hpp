@@ -59,7 +59,6 @@ void do_session(tcp::socket& socket, std::string& path, int sleep) {
                 // block until the whole file will be transmitted
                 while ( std::getline(file.input, output, '\n') ) {
                     ws.write(boost::asio::buffer(output));
-                    // sleep 
                     std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
                 };
             } else {

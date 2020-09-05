@@ -1,6 +1,11 @@
+import Chart from "chart.js"
+
 export default class myChart {
+    chart: Chart
+    
     constructor(ylabel="Y", chartName='alt-chart', title="Altitude") {
-        let ctx = document.getElementById(chartName).getContext('2d');
+        const canvas = <HTMLCanvasElement> document.getElementById(chartName)
+        const ctx = <CanvasRenderingContext2D> canvas.getContext('2d')
         this.chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -15,10 +20,10 @@ export default class myChart {
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true,
+                // maintainAspectRatio: true,
                 animation: {
                     duration: 0,
-                    lazy: false
+                    // lazy: false
                 },
                 legend: {
                     display: true,
@@ -71,77 +76,61 @@ export default class myChart {
                     fontColor: 'rgba(200, 200, 200, 1)'
                 },
                 elements: {
-                    line: {
+                    line: { 
                         tension: 0
                     },
                     point: {
                         radius: 0
                     }
                 },
-                plugins: {
-                    zoom: {
-                        pan: {
-                            // Boolean to enable panning
-                            enabled: true,
-                            mode: 'xy',
-                            rangeMin: {
-                                // Format of min pan range depends on scale type
-                                x: null,
-                                y: null
-                            },
-                            rangeMax: {
-                                // Format of max pan range depends on scale type
-                                x: null,
-                                y: null
-                            },
-                            // On category scale, factor of pan velocity
-                            speed: 1000, // ??
-                            // Minimal pan distance required before actually applying pan
-                            threshold: 5 // ??
-                        },
-                        zoom: {
-                            enabled: true,
-                            // drag: {animationDuration: 500},
-                            drag: false,
-                            mode: 'x',
-                            speed: 1000, // ??
-                            sensitivity: 0.00001 // ??
-                        }
-                    }
+                hover: {
+                    mode: "nearest",
+                    intersect: false,
+                    animationDuration: 250
                 }
             }
-        });
+        })
     }
 
-    removeAll() {
-        this.chart.data.labels = [];
-        this.chart.data.datasets[0].data = [];
-        if ( this.chart.data.datasets.length == 2 ) {
-            this.chart.data.datasets[1].data = [];
+    removeAll(): void {
+        this.chart.data.labels = []
+        if (!!this.chart.data.datasets) {
+            this.chart.data.datasets[0].data = []
+            if ( this.chart.data.datasets?.length === 2 ) {
+                this.chart.data.datasets[1].data = []
+            }
+            this.chart.update()
         }
-        this.chart.update();
-    };
+    }
 
-    removeData(start, len) {
-        this.chart.data.labels.splice(start, len);
-        this.chart.data.datasets.forEach((dataset) => {
-            dataset.data.splice(start, len)
-        });
-        this.chart.update();
-    };
+    removeData(start: number, len: number): void {
+        if (!!this.chart.data.labels) {
+            this.chart.data.labels.splice(start, len)
+        }
+        if (!!this.chart.data.datasets) {
+            this.chart.data.datasets.forEach((dataset) => {
+                dataset.data?.splice(start, len)
+            })
+        }
+        this.chart.update()
+    }
 
-    addData(labels, data, num=0) {
-        labels.forEach((label) => {
-            this.chart.data.labels.push(label);
-        });
-        data.forEach((d) => {
-            this.chart.data.datasets[num].data.push(d);
-        });
-        this.chart.update();
-    };
+    addData(labels: number[], data: number[], num=0): void {
+        if (!!this.chart.data.datasets && !!this.chart.data.labels) {
+            labels.forEach((label) => {
+                this.chart.data.labels?.push(label)
+            })
+            if (this.chart.data.datasets?.length) {
+                for (const d of data) {
+                    this.chart.data.datasets[num].data?.push(d)
+                }
+            }
+            this.chart.update()
+        }
+    }
 
-    drawPr(ts, pArr, rArr) {
-        this.chart.data.labels = ts;
+    drawPr(ts: number[], pArr: number[], rArr: number[]): void {
+        this.chart.data.labels = ts
         this.chart.data.datasets = [
             {
                 label: "pitch",
@@ -157,13 +146,15 @@ export default class myChart {
                 borderColor: 'rgba(255, 99, 159, 1)',
                 borderWidth: 1
             }
-        ];
-        this.chart.update();
-    };
+        ]
+        this.chart.update()
+    }
 
-    drawSingle(ts, arr) {
-        this.chart.data.labels = ts;
-        this.chart.data.datasets[0].data = arr;
-        this.chart.update();
-    };
-};
+    drawSingle(ts: number[], arr: number[]): void {
+        if (!!this.chart.data.labels && !!this.chart.data.datasets) {
+            this.chart.data.labels = ts
+            this.chart.data.datasets[0].data = arr
+            this.chart.update()
+        }
+    }
+}

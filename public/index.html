@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>telemetry monitor</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/dark/main.css">
+    <link rel="stylesheet" href="./css/style.css" type="text/css">
+</head>
+<body>
+    <div id="map-view"></div>
+
+    <div class="charts-block">
+        <div class="control-block">
+            
+            <div class="buttons-block">
+                <div id="upload-file"> 
+                    <input type="file" id="inp-file" hidden="hidden">
+
+                    <button type="button" id="inp-file-button">Choose a file</button>
+                </div>
+
+                <button class="player-buttons" id="play">
+                    <img src="./img/play-bold.png" class="button-img" id="play-button-img"/>
+                </button>
+
+                <button class="player-buttons" id="stop">
+                    <img src="./img/stop-bold.png" class="button-img" id="stop-button-img"/>
+                </button>
+            </div>
+
+            <div id="input-middle-block">
+                <input type="text" id="server-address-inp" placeholder="Server address..." value="localhost:8008">
+
+                <label class="container" id="checkbox-container">Accumulate readings
+                    <input type="checkbox" id="checkbox-accumulate" disabled>
+
+                    <span class="checkmark" id="checkbox-checkmark"></span>
+                </label>
+                
+                <div id="freq-input">
+                    <input type="range" id="range-freq" name="range-input" min="0" max="4" value="3" step="1">
+
+                    <div id="range-output">100 ticks</div>
+                </div>
+            </div>
+                
+            <div id="socket-block">
+                <button type="button" id="server-start-button">Socket</button>
+
+                <button type="button" id="download">
+                    <img src="./img/download.png" class="button-img" id="download-img"/>
+                </button>
+
+                <input type="file" id="inp-config-file" hidden="hidden">
+
+                <button type="button" id="upload-config" disabled>
+                    <img src="./img/upload.png" class="button-img" id="upload-config-img"/>
+                </button>
+            </div>
+        </div>
+
+        <div class="charts">
+            <canvas id="alt-chart" height="150px"></canvas>
+
+            <canvas id="pr-chart" height="150px"></canvas>
+
+            <canvas id="yaw-chart" height="150px"></canvas>
+
+            <canvas id="pos-chart" height="150px"></canvas>
+
+            <canvas id="vel-chart" height="150px"></canvas>
+
+            <canvas id="numsat-chart" height="150px"></canvas>
+        </div>
+    </div>
+
+    <div id="cover-spin"></div>
+    
+    <script src="./bundle.js"></script>
+</body>
+</html>
