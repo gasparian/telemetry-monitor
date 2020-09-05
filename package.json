@@ -4,12 +4,12 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start-server": "node ./src/server/app.js",
-    "build-server": "tsc -p .",
+    "start_server": "node ./src/server/app.js",
+    "build_server": "tsc -p .",
     "webpack": "webpack",
-    "up-server": "tsc -p . && node ./src/server/app.js",
-    "wp-dev": "npm run webpack -- --mode development --watch",
-    "wp-prod": "npm run webpack -- --mode production"
+    "up_server": "tsc -p . && node ./src/server/app.js",
+    "wp_dev": "npm run webpack -- --mode development --watch",
+    "wp_prod": "npm run webpack -- --mode production"
   },
   "keywords": [],
   "author": "",
