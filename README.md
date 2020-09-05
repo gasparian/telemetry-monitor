@@ -9,22 +9,22 @@ If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) d
 In order to work with custom-formatted data, change implementation of `parseData()` methods in `./client/js/data_processors.js`.  
 
 ### Controls  
- - `Choose file` - is for file uploading;  
- - `play/stop` buttons are for animation of the finished ride (when the socket is closed);  
- - `Socket` button opens and closes web-socket connetction with the embedded server (see server address input in the middle);  
- - `Download` - is for downloading parsed data to the local machine;  
- - `Upload` - to upload a `*.yaml` config file to the server;  
- - use slider to choose a batch size for visualization;  
+ - `Choose file` - is for file uploading  
+ - `play/stop` buttons are for animation of the finished ride (when the socket is closed)  
+ - `Socket` button opens and closes web-socket connetction with the embedded server (see server address input in the middle)  
+ - `Download` - is for downloading parsed data to the local machine  
+ - `Upload` - to upload a `*.yaml` config file to the server  
+ - use slider to choose a batch size for visualization  
 
 ### To do:  
  - First order:  
-     - make data parser for custom data --> look at the processing from `ins` repo;  
+     - make data parser for custom data --> look at the processing from `ins` repo  
  - Second order:  
-     - fix small delay at start of data transfer through web-socket;  
-     - fix classes and ids mess in layout and styles;  
-     - work with graphs' zooming/panning - smth wrong on large files;  
-     - add configurable plots (smth like plus sign...) == components?;  
-     - charts.js --> D3.js (?);  
+     - fix small delay at start of data transfer through web-socket  
+     - fix classes and ids mess in layout and styles  
+     - work with graphs' zooming/panning - smth wrong on large files  
+     - add configurable plots (smth like plus sign...) == components?  
+     - charts.js --> D3.js (?)  
 
 ### Running client locally  
 Install dependencies:  

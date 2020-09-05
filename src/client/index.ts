@@ -21,7 +21,7 @@ const globalState = getGlobalState()
 
 /* ---------------------------------------- ArcGis ----------------------------------------- */
 
-import { loadModules } from 'esri-loader';
+import { loadModules } from 'esri-loader'
 loadModules([
     "esri/Map", "esri/views/SceneView", "esri/Graphic", 
     "esri/layers/GraphicsLayer", "esri/geometry/Point", "esri/geometry/Multipoint", 
@@ -51,7 +51,7 @@ loadModules([
 
 /* ----------------------------------- Buttons callbacks ----------------------------------- */
 
-globalState.dataProcessors.streamProcessor.registerLengthListener(globalState)
+globalState.dataProcessors.streamProcessor.registerLengthListener!(globalState)
 globalState.buttons.fileInputBtn.addEventListener("click", InpBtnOnClick(globalState.io))
 globalState.buttons.range.addEventListener("input", rangeOnInput(globalState))
 
@@ -77,7 +77,7 @@ globalState.buttons.downloadBtn.addEventListener("click", downloadBtnCallback(gl
 // upload and send *.yaml config file to the embedded server
 globalState.buttons.uploadConfigBtn.onclick = function(e) {
     globalState.io.configFileInput.click()
-};
+}
 
 globalState.io.configFileInput.addEventListener("change", configFileInputCallback(globalState.io))
 

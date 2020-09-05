@@ -1,4 +1,4 @@
-import { roundToPrecision } from "./misc";
+import { roundToPrecision } from "./misc"
 import { IMeasurement, IParserResult } from "./IMeasurement"
 import {IVariablesState} from "./IGlobalState"
 
@@ -19,7 +19,7 @@ export default function parseCsv(vars: IVariablesState, measurements: string[], 
             count++
             return
         } 
-        splittedMeasurement = measurement.split(',');
+        splittedMeasurement = measurement.split(',')
         if (splittedMeasurement[0] == "timestamp") {
             splittedMeasurement.forEach(col => {
                 cols.push(col)
@@ -33,10 +33,12 @@ export default function parseCsv(vars: IVariablesState, measurements: string[], 
                 t0 = Date.parse(splittedMeasurement[0])
                 flag = true
             }
-            dt = roundToPrecision((Date.parse(splittedMeasurement[0]) - t0) / 1000.0, 100) // timestamp
-            result.timestamp.push(dt)
-            for ( let i=1; i < splittedMeasurement.length; i++ ) {
-                result[cols[i]].push(parseFloat(splittedMeasurement[i]))
+            if (!!t0) {
+                dt = roundToPrecision((Date.parse(splittedMeasurement[0]) - t0) / 1000.0, 100) // timestamp
+                result.timestamp.push(dt)
+                for ( let i=1; i < splittedMeasurement.length; i++ ) {
+                    result[cols[i]].push(parseFloat(splittedMeasurement[i]))
+                }
             }
         }
         count++
@@ -44,7 +46,10 @@ export default function parseCsv(vars: IVariablesState, measurements: string[], 
     return {result, t0}
 }
 
-export function formCsv(data: IMeasurement): string {
+export function formCsv(data: IMeasurement | null): string {
+    if (!data) {
+        return ""
+    }
     let result: string[] = [Object.keys(data).join(",")]
     const n_rows: number = data.timestamp.length
     for ( let i=0; i < n_rows; i++ ) {

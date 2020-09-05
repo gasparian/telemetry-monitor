@@ -1,5 +1,5 @@
 import parseCsv from "./csvParser"
-import { dataListener, getCurrTime } from "./misc"
+import { DataListener, getCurrTime } from "./misc"
 import { drawMapPolyline, drawCone } from "./mapDraw"
 import { drawPause } from "./animation"
 import IGlobalState, {IVariablesState, IIoState, IChartsState, IMapsState} from "./IGlobalState"
@@ -12,9 +12,11 @@ export function sendFileWebSocket(io: IIoState) {
     }
 
     reader.onload = function(e) {
-        io.ws.send(e.target.result)
+        if (!!io.ws && !!e.target) {
+            io.ws.send(e.target.result!)
+        }
     }
-    reader.readAsArrayBuffer(io.configFileInput.files[0])
+    reader.readAsArrayBuffer(io.configFileInput.files![0])
 }
 
 export function clearDrawing(state: IGlobalState) {
@@ -34,9 +36,12 @@ export class FileDataProcessor implements IDataProcessor {
     windowEndMeasurementId: null | number
 
     constructor() {
+        this.parsedData = null
+        this.batchSize = null
         this.maxMeasurementId = null
         this.reader = new FileReader()
-        this.initVars()
+        this.measurementId = 0
+        this.windowEndMeasurementId = null
     }
 
     initVars() {
@@ -47,7 +52,7 @@ export class FileDataProcessor implements IDataProcessor {
 
     loadFile(state: IGlobalState) {
         this.reader.onloadend = (e) => {
-            if (e.target.readyState == FileReader.DONE) {
+            if (!!e.target && e.target.readyState == FileReader.DONE) {
                 this.parsedData = null
                 this.batchSize = null
                 this.maxMeasurementId = null
@@ -57,7 +62,7 @@ export class FileDataProcessor implements IDataProcessor {
                 this.drawLastCone(state.maps)
             }
         }
-        this.reader.readAsBinaryString(state.io.fileInput.files[0])
+        this.reader.readAsBinaryString(state.io.fileInput.files![0])
     }
 
     startDrawPause(state: IGlobalState) {
@@ -74,39 +79,47 @@ export class FileDataProcessor implements IDataProcessor {
     startdraw(state: IGlobalState) {
         if (!this.parsedData) {
             this.parseData(state.vars)
-            state.charts.prChart.drawPr(
-                [this.parsedData.timestamp[0]], [this.parsedData.pitch[0]], [this.parsedData.roll[0]]
-            )
+            if (!!this.parsedData) {
+                state.charts.prChart.drawPr(
+                    [this.parsedData!.timestamp[0]], [this.parsedData!.pitch[0]], [this.parsedData!.roll[0]]
+                )
+            }
         }
 
-        this.maxMeasurementId = this.parsedData.timestamp.length
-        drawCone(state.maps, this.parsedData.lon[0], this.parsedData.lat[0], false)
+        if (!!this.parsedData) {
+            this.maxMeasurementId = this.parsedData.timestamp.length
+            drawCone(state.maps, this.parsedData.lon[0], this.parsedData.lat[0], false)
+        }
     }
 
     iterDraw(state: IGlobalState) {
         this.batchSize = this.batchSize ? state.vars.batchSize : this.maxMeasurementId
-        this.windowEndMeasurementId = Math.min(this.measurementId+this.batchSize, this.maxMeasurementId)
+        if (!!this.maxMeasurementId && !!this.batchSize && !!this.parsedData) {
+            this.windowEndMeasurementId = Math.min(this.measurementId+this.batchSize, this.maxMeasurementId)
 
-        const tsSlice = this.parsedData.timestamp.slice(this.measurementId, this.windowEndMeasurementId)
-        for ( const chart in state.charts ) {
-            if ( chart == "prChart" ) {
-                continue
+            const tsSlice = this.parsedData.timestamp.slice(this.measurementId, this.windowEndMeasurementId)
+            for ( const chart in state.charts ) {
+                if ( chart == "prChart" ) {
+                    continue
+                }
+                state.charts[chart].addData(tsSlice, this.parsedData[chart].slice(this.measurementId, this.windowEndMeasurementId))
             }
-            state.charts[chart].addData(tsSlice, this.parsedData[chart].slice(this.measurementId, this.windowEndMeasurementId))
-        }
 
-        state.charts.prChart.addData(tsSlice, this.parsedData.pitch.slice(this.measurementId, this.windowEndMeasurementId), 0)
-        state.charts.prChart.addData([], this.parsedData.roll.slice(this.measurementId, this.windowEndMeasurementId), 1)
-        drawMapPolyline(state, this.parsedData, this.measurementId, this.windowEndMeasurementId, this.maxMeasurementId, this.constructor.name)
-        this.measurementId = this.windowEndMeasurementId
-        if (this.measurementId == this.maxMeasurementId) {
-            state.vars.drawingFinished.value = true
+            state.charts.prChart.addData(tsSlice, this.parsedData.pitch.slice(this.measurementId, this.windowEndMeasurementId), 0)
+            state.charts.prChart.addData([], this.parsedData.roll.slice(this.measurementId, this.windowEndMeasurementId), 1)
+            drawMapPolyline(state, this.parsedData, this.measurementId, this.windowEndMeasurementId, this.maxMeasurementId, this.constructor.name)
+            this.measurementId = this.windowEndMeasurementId
+            if (this.measurementId == this.maxMeasurementId) {
+                state.vars.drawingFinished.value = true
+            }
         }
     }
 
     drawLastCone(maps: IMapsState) {
-        drawCone(maps, this.parsedData.lon[this.windowEndMeasurementId-1], 
-                 this.parsedData.lat[this.windowEndMeasurementId-1], true)
+        if (!!this.parsedData && !!this.windowEndMeasurementId) {
+            drawCone(maps, this.parsedData.lon[this.windowEndMeasurementId-1], 
+                    this.parsedData.lat[this.windowEndMeasurementId-1], true)
+        }
     }
 }
 
@@ -114,7 +127,7 @@ export class StreamProcessor implements IDataProcessor {
     columns: string
     parsedData: null | IMeasurement
     measurements: string[]
-    length: dataListener
+    length: DataListener<number>
     measurementId: number
     firstIter: boolean
     firstMeasurementTime: null | number
@@ -125,7 +138,22 @@ export class StreamProcessor implements IDataProcessor {
     batchSize: number
 
     constructor() {
-        this.initVars()
+        this.columns = ""
+        this.timerInitTime = 0
+        this.dt = 0
+        this.batchSize = 0
+        this.parsedData = {}
+        const parsedCols = this.columns.split(',')
+        for ( const measurementId in parsedCols ) {
+            this.parsedData[parsedCols[measurementId]] = []
+        }
+        this.measurements = [this.columns]
+        this.length = new DataListener(0)
+        this.measurementId = 0
+        this.firstIter = true
+        this.firstMeasurementTime = null
+        this.windowEndMeasurementId = 1
+        this.maxMeasurementId = 1 // for compatibility with `drawPause` function
     }
 
     initVars(cols="") {
@@ -136,7 +164,7 @@ export class StreamProcessor implements IDataProcessor {
             this.parsedData[parsedCols[measurementId]] = []
         }
         this.measurements = [this.columns]
-        this.length = new dataListener(0)
+        this.length = new DataListener(0)
         this.measurementId = 0
         this.firstIter = true
         this.firstMeasurementTime = null
@@ -160,9 +188,11 @@ export class StreamProcessor implements IDataProcessor {
         for ( const col in this.parsedData ) {
             this.parsedData[col].push(...parsed.result[col])
         }
-        this.maxMeasurementId = this.parsedData.timestamp.length
-        this.length.value = this.maxMeasurementId
-        this.measurements = [this.columns]
+        if (!!this.parsedData) {
+            this.maxMeasurementId = this.parsedData.timestamp.length
+            this.length.value = this.maxMeasurementId
+            this.measurements = [this.columns]
+        }
     }
 
     startTimer() {
@@ -184,7 +214,7 @@ export class StreamProcessor implements IDataProcessor {
     iterDraw(state: IGlobalState) {
         this.batchSize = state.vars.batchSize
         if ( this.length.value >= state.vars.batchSize ) {
-            if ( this.firstIter ) {
+            if ( this.firstIter && !!this.parsedData ) {
                 state.charts.prChart.drawPr(
                     [this.parsedData.timestamp[0]], [this.parsedData.pitch[0]], [this.parsedData.roll[0]]
                 )
@@ -192,7 +222,7 @@ export class StreamProcessor implements IDataProcessor {
                 this.firstIter = false
             }
             this.windowEndMeasurementId = Math.min(this.measurementId+state.vars.batchSize, this.maxMeasurementId) 
-            if ( (this.measurementId != this.maxMeasurementId) ) {
+            if ( (this.measurementId != this.maxMeasurementId) && !!this.parsedData ) {
                 const tsSlice = this.parsedData.timestamp.slice(this.measurementId, this.windowEndMeasurementId)
                 for ( const chart in state.charts ) {
                     if ( chart == "prChart" ) {
@@ -210,13 +240,15 @@ export class StreamProcessor implements IDataProcessor {
 
             // check if we need to redraw graphs w/o `old` values
             // just take any chart to see its' length since they're all equal
-            let dropLen = state.charts.alt.chart.data.labels.length - state.vars.maxGraphBuffLen
-            dropLen = (dropLen < 0) ? 0 : dropLen
-            if ( (dropLen > 0) ) {
-                for ( const chart in state.charts ) {
-                    state.charts[chart].removeData(0, dropLen)
+            if (!!state.charts.alt.chart.data.labels) {
+                let dropLen = state.charts.alt.chart.data.labels.length - state.vars.maxGraphBuffLen
+                dropLen = (dropLen < 0) ? 0 : dropLen
+                if ( (dropLen > 0) ) {
+                    for ( const chart in state.charts ) {
+                        state.charts[chart].removeData(0, dropLen)
+                    }
                 }
-            }                
+            }
         }
     }
 }

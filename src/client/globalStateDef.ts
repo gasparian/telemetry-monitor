@@ -1,7 +1,7 @@
 import IGlobalState from "./IGlobalState"
-import myChart from "./chartsDraw";
-import { FileDataProcessor, StreamProcessor } from "./dataProcessors";
-import { dataListener } from "./misc";
+import myChart from "./chartsDraw"
+import { FileDataProcessor, StreamProcessor } from "./dataProcessors"
+import { DataListener } from "./misc"
 
 export default function getGlobalState(): IGlobalState {
     return {
@@ -18,7 +18,7 @@ export default function getGlobalState(): IGlobalState {
             rangeChanged: false,
             lastBatchFlag: false,
             requestid: null,
-            drawingFinished: new dataListener(false),
+            drawingFinished: new DataListener(false),
             command: null,
             playClicked: false,
             serverBtnState: false,

@@ -1,4 +1,4 @@
-import { Stopwatch } from "../misc";
+import { Stopwatch } from "../misc"
 import IGlobalState, {IIoState, IChartsState, IMapsState} from "../IGlobalState"
 import EventCallback from "./ICallbacks"
 import {switchCoverSpin} from "../animation"
@@ -27,7 +27,7 @@ export function fileInputCallback(state: IGlobalState): EventCallback {
             switchCoverSpin(true)
             sw.start()
             clearDrawing(state)
-            state.dataProcessors.fileProcessor.loadFile(state)
+            state.dataProcessors.fileProcessor.loadFile!(state)
             sw.stop()
         
             setTimeout(() => switchCoverSpin(false), 

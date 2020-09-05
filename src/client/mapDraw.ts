@@ -11,22 +11,22 @@ export function drawPolyLine(
 
     const lineSymbol = {
         type: "simple-line",
-        color: [226, 119, 40, 1.0], // rgba; orange
+        color: [226, 119, 40, 1.0], // rgba orange
         width: 2
-    };
+    }
 
     const polylineGraphic = new state.maps.Graphic({
         geometry: polyline,
         symbol: lineSymbol
-    });
+    })
 
     // draw polyline
-    state.maps.graphicsLayer.add(polylineGraphic);
+    state.maps.graphicsLayer.add(polylineGraphic)
     state.maps.sceneView.center = new state.maps.Point({
         latitude: clat, 
         longitude: clon
-    });
-    state.maps.sceneView.zoom = state.vars.mapZoom;
+    })
+    state.maps.sceneView.zoom = state.vars.mapZoom
 }
 
 export function drawPosPolyLine(
@@ -36,20 +36,20 @@ export function drawPosPolyLine(
         paths: [arr]
     })
 
-    acc = Math.max(1, acc);
+    acc = Math.max(1, acc)
     const lineSymbol = {
         type: "simple-line",
-        color: [150, 50, 50, 0.2], // rgba; orange
+        color: [150, 50, 50, 0.2], // rgba orange
         width: Math.max(2, Math.floor(state.vars.covarianceMult * acc))
-    };
+    }
 
     const polylineGraphic = new state.maps.Graphic({
         geometry: polyline,
         symbol: lineSymbol
-    });
+    })
 
     // draw polyline
-    state.maps.graphicsLayer.add(polylineGraphic);
+    state.maps.graphicsLayer.add(polylineGraphic)
 }
 
 export function drawMapPolyline(
@@ -57,39 +57,39 @@ export function drawMapPolyline(
         start: number, end: number, 
         maxId: number, constructorName: string): void {
 
-    end = Math.min(maxId, end);
-    const len = end - start;
-    let newArr: number[][] = [];
-    let clon = 0;
-    let clat = 0;
+    end = Math.min(maxId, end)
+    const len = end - start
+    let newArr: number[][] = []
+    let clon = 0
+    let clat = 0
 
     if ( constructorName == "FileDataProcessor" ) {
-        let counter = 0;
-        let posArr = [];
-        let thin = Math.max(2, state.vars.mapThin);
+        let counter = 0
+        let posArr = []
+        let thin = Math.max(2, state.vars.mapThin)
         for (let i=start; i < end; i++) {
             if ( !((len-i) % thin) || (i == (end-1)) || (i == start) ) {
-                clon += arr.lon[i];
-                clat += arr.lat[i];
-                newArr.push([arr.lon[i], arr.lat[i]]);
-                posArr.push(arr.pos_accuracy[i]);
-                counter++;
+                clon += arr.lon[i]
+                clat += arr.lat[i]
+                newArr.push([arr.lon[i], arr.lat[i]])
+                posArr.push(arr.pos_accuracy[i])
+                counter++
             }
         }
-        clon /= counter;
-        clat /= counter;
+        clon /= counter
+        clat /= counter
         for (let i=1; i < newArr.length; i++) {
-            drawPosPolyLine(state, newArr.slice(i-1, i+1), posArr[i]);
+            drawPosPolyLine(state, newArr.slice(i-1, i+1), posArr[i])
         }
     } else if ( constructorName == "StreamProcessor" ) {
         // make it simple: just draw line between first and last points
-        newArr = [[arr.lon[start], arr.lat[start]], [arr.lon[end-1], arr.lat[end-1]]];
-        clon = 0.5 * (arr.lon[start] + arr.lon[end-1]);
-        clat = 0.5 * (arr.lat[start] + arr.lat[end-1]);
-        drawPosPolyLine(state, newArr, arr.pos_accuracy[end-1]);
+        newArr = [[arr.lon[start], arr.lat[start]], [arr.lon[end-1], arr.lat[end-1]]]
+        clon = 0.5 * (arr.lon[start] + arr.lon[end-1])
+        clat = 0.5 * (arr.lat[start] + arr.lat[end-1])
+        drawPosPolyLine(state, newArr, arr.pos_accuracy[end-1])
     }
 
-    drawPolyLine(state, newArr, clon, clat);
+    drawPolyLine(state, newArr, clon, clat)
 }
 
 export function drawCone(
@@ -120,16 +120,16 @@ export function drawCone(
     const pointGraphic = new maps.Graphic({
         geometry: point,
         symbol: pointSymbol
-    });
+    })
 
-    maps.graphicsLayer.add(pointGraphic);
+    maps.graphicsLayer.add(pointGraphic)
 }
 
 export function drawPosAcc(
         maps: IMapsState, lon: number, 
         lat: number, acc: number, mult=2): void {
 
-    acc *= mult;
+    acc *= mult
 
     const point = new maps.Point({
         longitude: lon,
@@ -155,7 +155,7 @@ export function drawPosAcc(
     const pointGraphic = new maps.Graphic({
         geometry: point,
         symbol: pointSymbol
-    });
+    })
 
-    maps.graphicsLayer.add(pointGraphic);
+    maps.graphicsLayer.add(pointGraphic)
 }

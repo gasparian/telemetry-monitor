@@ -2,5 +2,5 @@ export interface IMeasurement { [key: string]: number[] }
 
 export interface IParserResult {
     result: IMeasurement,
-    t0: number
+    t0: number | null
 }

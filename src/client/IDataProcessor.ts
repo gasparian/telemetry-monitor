@@ -1,6 +1,6 @@
 import IGlobalState, {IVariablesState, IChartsState, IMapsState} from "./IGlobalState"
 import { IMeasurement } from "./IMeasurement"
-import { dataListener } from "./misc"
+import { DataListener } from "./misc"
 
 export default interface IDataProcessor {
     parsedData: null | IMeasurement
@@ -11,7 +11,7 @@ export default interface IDataProcessor {
     windowEndMeasurementId: null | number    
     columns?: string
     measurements?: string[]
-    length?: dataListener
+    length?: DataListener<number>
     firstIter?: boolean
     firstMeasurementTime?: null | number
     timerInitTime?: number

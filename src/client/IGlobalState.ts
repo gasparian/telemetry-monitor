@@ -1,5 +1,5 @@
-import {dataListener} from "./misc"
-import myChart from "./chartsDraw";
+import {DataListener} from "./misc"
+import myChart from "./chartsDraw"
 import IDataProcessor from "./IDataProcessor"
 
 export interface IVariablesState {
@@ -16,7 +16,7 @@ export interface IVariablesState {
     lastBatchFlag: boolean
     requestid: number | null
     rangeDefaultVal: number
-    drawingFinished: dataListener
+    drawingFinished: DataListener<boolean>
     command: string | null
     playClicked: boolean
     serverBtnState: boolean
@@ -49,7 +49,7 @@ export interface IIoState {
 }
 
 // I end up with `any` type since smth 
-// goes wrong with `chartjs` and `argis` libs in typescript ;(
+// goes wrong with `chartjs` and `argis` libs in typescript (
 export interface IChartsState { [key: string]: myChart }
 export interface IMapsState { [key: string]: any }
 

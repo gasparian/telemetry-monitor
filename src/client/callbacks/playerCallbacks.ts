@@ -9,14 +9,14 @@ import {
 import { 
     switchCoverSpin, changeBtnStatus, swapImageBtn,
     stopAnimation, switchPlayerBtns, switchInputBtnStatus,
-} from "../animation";
+} from "../animation"
 import EventCallback, {RegisterListenerCallback} from "./ICallbacks"
 import IGlobalState, {IDataProcessorsState, IIoState} from "../IGlobalState"
 
 export function registerDrawingFinishedCallback(state: IGlobalState): RegisterListenerCallback {
     return (val) => {
         if (val) {
-            state.dataProcessors.fileProcessor.drawLastCone(state.maps)
+            state.dataProcessors.fileProcessor.drawLastCone!(state.maps)
             state.dataProcessors.fileProcessor.batchSize = null
             state.vars.stopFlag = false
             state.vars.playClicked = false
@@ -41,12 +41,12 @@ export function playBtnCallback(state: IGlobalState): EventCallback {
                     if (!state.vars.stopFlag) {
                         clearDrawing(state)
                         state.dataProcessors.fileProcessor.initVars()
-                        state.dataProcessors.fileProcessor.startdraw(state)
+                        state.dataProcessors.fileProcessor.startdraw!(state)
                         state.vars.drawingFinished.value = false
                     }
-                    state.dataProcessors.fileProcessor.startDrawPause(state)
+                    state.dataProcessors.fileProcessor.startDrawPause!(state)
                 } else if (wsIsOpen) {
-                    // some demo code; this should be changed with real server
+                    // some demo code this should be changed with real server
                     state.vars.playClicked = true
                     state.buttons.playBtn.disabled = true
                     state.vars.command = "start stream"
@@ -101,7 +101,7 @@ export function serverBtnCallback(state: IGlobalState): EventCallback {
                     state.io.ws.onerror = function(event) {
                         alert("WebSocket error observed: " + event)
                         onStreamClosed(state)
-                    };
+                    }
 
                     state.io.ws.addEventListener("open", function(e) {
                         state.vars.lastBatchFlag = false
@@ -127,11 +127,11 @@ export function serverBtnCallback(state: IGlobalState): EventCallback {
                             if ( !state.vars.startStreamFlag ) {
                                 clearDrawing(state)
                                 state.dataProcessors.streamProcessor.initVars(inMessage)
-                                state.dataProcessors.streamProcessor.registerLengthListener(state)
-                                state.dataProcessors.streamProcessor.startTimer()
+                                state.dataProcessors.streamProcessor.registerLengthListener!(state)
+                                state.dataProcessors.streamProcessor.startTimer!()
                             }
                             state.vars.startStreamFlag = true
-                            state.dataProcessors.streamProcessor.updateArr(state.vars, inMessage)
+                            state.dataProcessors.streamProcessor.updateArr!(state.vars, inMessage)
                         } else if ( state.vars.command == "stop stream" ) {
                             onStreamClosed(state)
                             state.vars.startStreamFlag = false
@@ -156,16 +156,16 @@ export function serverBtnCallback(state: IGlobalState): EventCallback {
 export function downloadBtnCallback(dataProcessors: IDataProcessorsState): EventCallback {
     return (e: Event) => {
         const filename = "ride-" + getFormattedTime()
-        let data = null
-        if ( dataProcessors.streamProcessor.maxMeasurementId > 1) {
+        let data = ""
+        if ( dataProcessors.streamProcessor.maxMeasurementId! > 1) {
             data = formCsv(dataProcessors.streamProcessor.parsedData)
         } else if ( dataProcessors.fileProcessor.parsedData ) {
             data = formCsv(dataProcessors.fileProcessor.parsedData)
         }
-        if ( data ) {
+        if ( !!data ) {
             const blob = new Blob([data], {type: 'text/csv'})
     
-            if(window.navigator.msSaveOrOpenBlob) {
+            if (!!window.navigator.msSaveOrOpenBlob) {
                 window.navigator.msSaveBlob(blob, filename)
             }
             else {

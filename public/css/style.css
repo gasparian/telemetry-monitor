@@ -44,7 +44,6 @@ body {
     width: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
 }
 
 #map-view {
@@ -73,8 +72,7 @@ body {
 .charts {
     position: relative;
     margin-left: 5px;
-    height: 85%;
-    height: calc(100%-130px);
+    height: calc(100% - 120px);
     overflow-y: auto;
     overflow-x: hidden;
 }
