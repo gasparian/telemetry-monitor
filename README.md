@@ -1,6 +1,9 @@
 <img src="https://travis-ci.com/gasparian/telemetry_monitor.svg?branch=master"/>  
 https://gasparian.github.io/telemetry_monitor/public/  
 
+***Disclaimer:***  
+*All the docker-related stuff are here only for running the code locally in a more convenient way*  
+
 ## Telemetry monitor  
 
 <p align="center"> <img src="https://github.com/gasparian/telemetry_monitor/blob/master/public/img/demo-pic.png" height=500 /> </p>  
