@@ -1,12 +1,12 @@
-<img src="https://travis-ci.com/gasparian/telemetry_monitor.svg?branch=master"/>  
-https://gasparian.github.io/telemetry_monitor/public/  
+<img src="https://travis-ci.com/gasparian/telemetry-monitor.svg?branch=master"/>  
+https://gasparian.github.io/telemetry-monitor/public/  
 
 ***Disclaimer:***  
 *All the docker-related stuff are here only for running the code locally in a more convenient way. A demo by the link above - is just static files served via github pages*  
 
 ## Telemetry monitor  
 
-<p align="center"> <img src="https://github.com/gasparian/telemetry_monitor/blob/master/public/img/demo-pic.png" height=500 /> </p>  
+<p align="center"> <img src="https://github.com/gasparian/telemetry-monitor/blob/master/public/img/demo-pic.png" height=500 /> </p>  
 
 If you're using [KITTI raw](http://www.cvlibs.net/datasets/kitti/raw_data.php) dataset, first [accumulate](https://gist.github.com/gasparian/7cd1b82e78a2ebefe895242616e87411) all GNSS/IMU readings.  
 In order to work with custom-formatted data, change implementation of `parseData()` methods in `./client/js/data_processors.js`.  
