@@ -1,5 +1,5 @@
 <img src="https://travis-ci.com/gasparian/telemetry_monitor.svg?branch=master"/>  
-https://gasparian.github.io/telemetry_monitor/src/client/  
+https://gasparian.github.io/telemetry_monitor/public/  
 
 ## Telemetry monitor  
 
@@ -33,8 +33,8 @@ npm run install
 ```  
 Make a client bundle via webpack and run the server:  
 ```
-npm run wp-dev  
-npm run up-server  
+npm run wp_dev  
+npm run up_server  
 ```  
 
 ### Embedded-server "emulator"  
