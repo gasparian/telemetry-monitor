@@ -1,4 +1,4 @@
-<img src="https://travis-ci.com/gasparian/telemetry_monitor.svg?branch=master"/>  
+<img src="https://travis-ci.com/gasparian/telemetry-monitor.svg?branch=master"/>  
 https://gasparian.github.io/telemetry-monitor/public/  
 
 ***Disclaimer:***  
