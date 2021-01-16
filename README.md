@@ -1,8 +1,4 @@
-<img src="https://travis-ci.com/gasparian/telemetry-monitor.svg?branch=master"/>  
 https://gasparian.github.io/telemetry-monitor/public/  
-
-***Disclaimer:***  
-*All the docker-related stuff are here only for running the code locally in a more convenient way. A demo by the link above - is just static files served via github pages*  
 
 ## Telemetry monitor  
 
@@ -38,6 +34,11 @@ Make a client bundle via webpack and run the server:
 ```
 npm run wp_dev  
 npm run up_server  
+```  
+Or use docker, if you need to:  
+```
+docker-compose build
+docker-compose up
 ```  
 
 ### Embedded-server "emulator"  
