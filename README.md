@@ -30,7 +30,7 @@ Or use docker, if you need to:
 docker-compose build
 docker-compose up
 ```  
-Also, to host the project on github pages, I just copy all static files from the `public` into the `gh-pages` branch, commit and push changes.  
+Also, to host the project on **github pages**, I just copy all static files from the `public` into the `gh-pages` branch, commit and push changes.  
 
 ### Embedded-server "emulator"  
 
