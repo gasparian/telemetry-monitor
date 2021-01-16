@@ -1,4 +1,4 @@
-https://gasparian.github.io/telemetry-monitor/public/  
+https://gasparian.github.io/telemetry-monitor/
 
 ## Telemetry monitor  
 
@@ -15,17 +15,7 @@ In order to work with custom-formatted data, change implementation of `parseData
  - `Upload` - to upload a `*.yaml` config file to the server  
  - use slider to choose a batch size for visualization  
 
-### To do:  
- - First order:  
-     - make data parser for custom data --> look at the processing from `ins` repo  
- - Second order:  
-     - fix small delay at start of data transfer through web-socket  
-     - fix classes and ids mess in layout and styles  
-     - work with graphs' zooming/panning - smth wrong on large files  
-     - add configurable plots (smth like plus sign...) == components?  
-     - charts.js --> D3.js (?)  
-
-### Running client locally  
+### Building and running  
 Install dependencies:  
 ```
 npm run install
@@ -40,6 +30,7 @@ Or use docker, if you need to:
 docker-compose build
 docker-compose up
 ```  
+Also, to host the project on github pages, I just copy all static files from the `public` into the `gh-pages` branch, commit and push changes.  
 
 ### Embedded-server "emulator"  
 
@@ -109,3 +100,13 @@ Messages processing logic is implemented in `./embedded_server_proto/src/session
   - velmode: velocity mode of primary GPS receiver
   - orimode: orientation mode of primary GPS receiver
 ```  
+
+### To do:  
+ - First order:  
+     - make data parser for custom data --> look at the processing from `ins` repo  
+ - Second order:  
+     - fix small delay at start of data transfer through web-socket  
+     - fix classes and ids mess in layout and styles  
+     - work with graphs' zooming/panning - smth wrong on large files  
+     - add configurable plots (smth like plus sign...) == components?  
+     - charts.js --> D3.js (?)  
