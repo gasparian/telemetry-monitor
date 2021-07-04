@@ -1,3 +1,7 @@
 /data
 /node_modules
 /embedded_server_proto
+.vscode
+**/*.js
+!/public/bundle.js
+!webpack.config.js
